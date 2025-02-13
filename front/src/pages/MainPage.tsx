@@ -1,4 +1,4 @@
-import { Stack, Card } from "@mui/joy";
+import { Stack, Card, Button } from "@mui/joy";
 
 export function MainPage() {
   return (
@@ -8,6 +8,10 @@ export function MainPage() {
         <Card>aaaa</Card>
         <Card>aaaa</Card>
         <Card>aaaa</Card>
+        <Button onClick={async ()=>{
+          const res = await fetch("/api/").then(res=>res.json());
+          alert(res.msg);
+        }}>click</Button>
       </Stack>
     </>
   );
