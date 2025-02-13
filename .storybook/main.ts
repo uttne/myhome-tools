@@ -1,18 +1,18 @@
-import { StorybookConfig } from '@storybook/react-vite';
+import { StorybookConfig } from "@storybook/react-vite";
 
-const config : StorybookConfig ={
-    stories:['../src/**/*.stories.@(js|jsx|ts|tsx)'],
-    framework: "@storybook/react-vite",
+const config: StorybookConfig = {
+  stories: ["../src/**/*.stories.@(js|jsx|ts|tsx)"],
+  framework: "@storybook/react-vite",
 
-    docs: {
-        autodocs: true
-    },
+  docs: {
+    autodocs: true,
+  },
 
-    typescript: {
-        reactDocgen: 'react-docgen-typescript'
-    },
+  typescript: {
+    reactDocgen: "react-docgen-typescript",
+  },
 
-    addons: ['@chromatic-com/storybook']
+  addons: ["@chromatic-com/storybook"],
 };
 
 export default config;
