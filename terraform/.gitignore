@@ -1,0 +1,19 @@
+# Terraform のプラグインやモジュールのキャッシュディレクトリ
+.terraform/
+
+# Terraform のステートファイル（機密情報が含まれる可能性があるため）
+terraform.tfstate
+terraform.tfstate.backup
+
+# ロックファイル（バージョン管理するかどうかはプロジェクトの方針によりますが、更新頻度が高い場合は除外するケースもあります）
+.terraform.lock.hcl
+
+# ローカル環境固有の変数ファイル（例: secrets や環境依存の設定が含まれている場合）
+*.auto.tfvars
+*.tfvars
+
+# クラッシュログなど
+crash.log
+
+# 一時ファイル
+*.tmp
