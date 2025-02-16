@@ -57,6 +57,9 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 resource "aws_iam_role" "lambda_exec_role" {
   name               = "myhome_tools_lambda_exec_role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
@@ -80,6 +83,9 @@ resource "aws_lambda_function" "api_function" {
 resource "aws_apigatewayv2_api" "http_api" {
   name          = "myhome-tools-api"
   protocol_type = "HTTP"
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {
@@ -158,7 +164,6 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     forwarded_values {
       query_string = true
-
       cookies {
         forward = "all"
       }
@@ -183,6 +188,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
 }
 
 locals {
@@ -205,12 +214,9 @@ resource "aws_s3_object" "spa_objects" {
   for_each = { for file in local.spa_files : file => file }
 
   bucket = aws_s3_bucket.spa_bucket.id
-
-  key = each.value
-
+  key    = each.value
   source = "${local.spa_source_dir}/${each.value}"
-
-  etag = filemd5("${local.spa_source_dir}/${each.value}")
+  etag   = filemd5("${local.spa_source_dir}/${each.value}")
 
   content_type = try(
     lookup(
@@ -220,4 +226,8 @@ resource "aws_s3_object" "spa_objects" {
     ),
     "application/octet-stream"
   )
+
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
 }
