@@ -1,20 +1,14 @@
-import { ControlBox } from "./parts/ControlBox";
-import { ContentArea } from "./parts/ContentArea";
-import { Sidebar } from "./parts/Sidebar";
 import { Routes, Route } from "react-router-dom";
-import { HomeContent } from "./contents/HomeContent";
-import { ProfileContent } from "./contents/ProfileContent";
-import { SettingsContent } from "./contents/SettingsContent";
-import { Topbar } from "./parts/Topbar";
+import { Topbar, ControlBox, ContentArea, Sidebar } from "./layouts";
+import { HomeContent, ProfileContent, SettingsContent } from "./contents";
 
 function App() {
-
   return (
     <>
       <div className="flex flex-col h-screen">
         <Topbar />
         <Sidebar />
-        <ContentArea >
+        <ContentArea>
           <Routes>
             <Route path="/" element={<HomeContent />} />
             <Route path="/profile" element={<ProfileContent />} />
