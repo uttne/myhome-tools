@@ -1,10 +1,43 @@
+resource "null_resource" "run_command" {
+  provisioner "local-exec" {
+    # 作業ディレクトリを指定（この例では module の "scripts" フォルダ）
+    working_dir = "${path.module}/../../../backend"
+    # 複数のコマンドを && や bash -c を利用して実行
+    command = "uv run task create_requirements && uv run task create_packages && uv run task create_layer && uv run task create_main"
+  }
+}
+
+data "archive_file" "api_lambda_zip" {
+  depends_on  = [null_resource.run_command]
+  type        = "zip"
+  source_dir  = "${path.module}/../../../backend/dist/main/python"
+  output_path = "${path.module}/generated/main.zip"
+}
+
+data "archive_file" "api_layer_zip" {
+  depends_on  = [null_resource.run_command]
+  type        = "zip"
+  source_dir  = "${path.module}/../../../backend/dist/layer/python"
+  output_path = "${path.module}/generated/layer.zip"
+}
+
+
+resource "aws_lambda_layer_version" "my_layer" {
+  layer_name          = "myhome-tools-layer"
+  filename         = data.archive_file.api_layer_zip.output_path
+  source_code_hash = data.archive_file.api_layer_zip.output_base64sha256
+  compatible_runtimes = ["python3.13"]
+  description         = "Layer for myhome-tools Python dependencies"
+}
+
 resource "aws_lambda_function" "api_function" {
   function_name    = "myhome-tools-function"
   role             = var.role_arn
   runtime          = "python3.13"
-  handler          = "lambda_function.lambda_handler"
-  filename         = "lambda_function.zip"
-  source_code_hash = filebase64sha256("lambda_function.zip")
+  handler          = "main.handler"
+  filename         = data.archive_file.api_lambda_zip.output_path
+  source_code_hash = data.archive_file.api_lambda_zip.output_base64sha256
+  layers           = [aws_lambda_layer_version.my_layer.arn]
   tags = {
     Project = "MYHOME_TOOLS"
   }

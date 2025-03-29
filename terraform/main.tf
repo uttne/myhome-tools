@@ -44,3 +44,7 @@ module "lambda_edge" {
   lambda_edge_source = "${path.module}/../auth/src/check-auth.tpl.ts"
   lambda_role_arn    = module.iam.lambda_exec_role_arn
 }
+
+module "lambda" {
+  source = "./modules/lambda"
+}
