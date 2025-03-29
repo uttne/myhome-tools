@@ -1,6 +1,6 @@
 import { Menu, Home, User, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSidebarState } from "../stores/SidebarState";
+import { useSidebarState } from "../stores/SidebarStore";
 
 function SidebarItem({
   icon,

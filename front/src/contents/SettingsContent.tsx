@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import useButtonStore from "../stores/ButtonStore";
+import useControlBoxState from "../stores/ControlStore";
 
 export function SettingsContent() {
-  const { setButtons } = useButtonStore();
+  const { setButtons } = useControlBoxState();
 
   useEffect(() => {
     setButtons([]);

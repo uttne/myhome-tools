@@ -1,5 +1,5 @@
 import { PlusCircle } from "lucide-react";
-import useButtonStore from "../stores/ButtonStore";
+import useControlBoxState from "../stores/ControlStore";
 
 import { useEffect } from "react";
 
@@ -38,7 +38,7 @@ const Card = ({
 };
 
 export function HomeContent() {
-  const { setButtons } = useButtonStore();
+  const { setButtons } = useControlBoxState();
 
   useEffect(() => {
     setButtons([

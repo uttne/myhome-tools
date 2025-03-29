@@ -1,4 +1,4 @@
-import { useSidebarState } from "../stores/SidebarState";
+import { useSidebarState } from "../stores/SidebarStore";
 
 export function ContentArea({children}: {children: React.ReactNode}) {
   const { isOpen } = useSidebarState();

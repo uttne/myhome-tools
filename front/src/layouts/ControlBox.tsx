@@ -1,7 +1,7 @@
-import useButtonStore, { ControlButtonData } from "../stores/ButtonStore";
+import useControlBoxState, { ControlBoxButtonData } from "../stores/ControlStore";
 
 
-function ControlBoxButton({data}:{data: ControlButtonData}) {
+function ControlBoxButton({data}:{data: ControlBoxButtonData}) {
 
   return (
     <button  className={`text-black px-4 py-2 rounded-full active:scale-95 transition-transform duration-50`}>
@@ -14,7 +14,7 @@ function ControlBoxButton({data}:{data: ControlButtonData}) {
 }
 
 export function ControlBox() {
-  const {buttons} = useButtonStore();
+  const {buttons} = useControlBoxState();
   
   return (
     buttons.length > 0 && (
