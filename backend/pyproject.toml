@@ -14,3 +14,12 @@ dependencies = [
 
 [tool.taskipy.tasks]
 start = "uvicorn main:app --port=8888 --reload"
+
+# https://docs.astral.sh/uv/guides/integration/aws-lambda/#using-a-lambda-layer
+create_requirements = "uv export --frozen --no-dev --no-editable -o dist/layer/requirements.txt"
+create_packages = "uv pip install --no-installer-metadata --no-compile-bytecode --python-platform x86_64-manylinux2014 --python 3.13 --prefix dist/layer/packages -r dist/layer/requirements.txt"
+create_layer = "uv run tasks/package_layer.py"
+create_main = "uv run tasks/package_main.py"
+clean_dist = "python -c \"import shutil; shutil.rmtree('dist', ignore_errors=True)\""
+
+build = "uv run task clean_dist &&uv run task create_requirements && uv run task create_packages && uv run task create_layer && uv run task create_main"
