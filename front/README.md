@@ -48,3 +48,11 @@ export default tseslint.config({
   },
 })
 ```
+
+## スマホででバック
+
+cloudflared tunnel を利用
+
+```bash
+cloudflared tunnel --url localhost:5173
+```

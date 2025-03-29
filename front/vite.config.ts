@@ -13,5 +13,8 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    allowedHosts:[
+      "calculators-endless-blast-special.trycloudflare.com",
+    ]
   },
 });
