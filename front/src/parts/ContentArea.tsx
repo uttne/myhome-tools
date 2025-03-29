@@ -1,4 +1,7 @@
-export function ContentArea({isOpen, children}: {isOpen: boolean, children: React.ReactNode}) {
+import { useSidebarState } from "../stores/SidebarState";
+
+export function ContentArea({children}: {children: React.ReactNode}) {
+  const { isOpen } = useSidebarState();
   return (
     <div
       className={`flex-grow p-4 overflow-auto pb-32 transition-all duration-300 mt-14 sm:mt-0 ml-0 ${

@@ -1,27 +1,27 @@
 import { Menu, Home, User, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSidebarState } from "../stores/SidebarState";
 
 function SidebarItem({
-  isOpen,
   icon,
   text,
-  path
+  path,
 }: {
-  isOpen: boolean;
   icon: React.ReactNode;
   text?: string;
-  path: string,
+  path: string;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isOpen } = useSidebarState();
 
-  const getActiveClass = ()=>{
+  const getActiveClass = () => {
     return location.pathname === path ? "bg-gray-700" : "";
-  }
+  };
   return (
     <div
       className={`flex items-center gap-2 whitespace-nowrap pr-2 pl-4 py-2 ${getActiveClass()} cursor-pointer duration-100`}
-      onClick={()=>navigate(path)}
+      onClick={() => navigate(path)}
     >
       {icon}
       {text ? (
@@ -41,13 +41,8 @@ function SidebarItem({
   );
 }
 
-export function Sidebar({
-  isOpen,
-  toggleSidebar,
-}: {
-  isOpen: boolean;
-  toggleSidebar: () => void;
-}) {
+export function Sidebar() {
+  const { isOpen, toggleOpen } = useSidebarState();
   return (
     <div
       className={`${
@@ -55,27 +50,20 @@ export function Sidebar({
       } bg-gray-800 text-white flex flex-col fixed top-0 left-0 h-full transition-width duration-300 overflow-hidden hidden sm:flex`}
     >
       <div
-            className="mb-4 ml-auto flex mr-6 mt-4 cursor-pointer"
-            onClick={toggleSidebar}
-          >
-            {<Menu />}
-          </div>
+        className="mb-4 ml-auto flex mr-6 mt-4 cursor-pointer"
+        onClick={toggleOpen}
+      >
+        {<Menu />}
+      </div>
       <nav>
         <div className="space-y-2">
+          <SidebarItem icon={<Home />} text="Home" path={"/"} />
           <SidebarItem
-            isOpen={isOpen}
-            icon={<Home />}
-            text="Home"
-            path={"/"}
-          />
-          <SidebarItem
-            isOpen={isOpen}
             icon={<User />}
             text="Profile"
             path={"/profile"}
           />
           <SidebarItem
-            isOpen={isOpen}
             icon={<Settings />}
             text="Settings"
             path={"/settings"}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ControlBox } from "./parts/ControlBox";
 import { ContentArea } from "./parts/ContentArea";
 import { Sidebar } from "./parts/Sidebar";
@@ -9,15 +8,13 @@ import { SettingsContent } from "./contents/SettingsContent";
 import { Topbar } from "./parts/Topbar";
 
 function App() {
-  const [isOpen, setIsOpen] = useState(true);
-  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
     <>
       <div className="flex flex-col h-screen">
         <Topbar />
-        <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-        <ContentArea isOpen={isOpen}>
+        <Sidebar />
+        <ContentArea >
           <Routes>
             <Route path="/" element={<HomeContent />} />
             <Route path="/profile" element={<ProfileContent />} />
