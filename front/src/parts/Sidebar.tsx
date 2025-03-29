@@ -52,7 +52,7 @@ export function Sidebar({
     <div
       className={`${
         isOpen ? "w-64" : "w-16"
-      } bg-gray-800 text-white flex flex-col fixed top-0 left-0 h-full transition-width duration-300 overflow-hidden`}
+      } bg-gray-800 text-white flex flex-col fixed top-0 left-0 h-full transition-width duration-300 overflow-hidden hidden sm:flex`}
     >
       <div
             className="mb-4 ml-auto flex mr-6 mt-4 cursor-pointer"
