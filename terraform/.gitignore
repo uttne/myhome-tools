@@ -17,3 +17,5 @@ crash.log
 
 # 一時ファイル
 *.tmp
+
+generated/

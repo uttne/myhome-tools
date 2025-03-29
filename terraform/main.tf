@@ -272,3 +272,110 @@ resource "aws_s3_object" "spa_objects" {
     Project = "MYHOME_TOOLS"
   }
 }
+
+#############################
+# Cognito リソース
+#############################
+
+resource "aws_cognito_user_pool" "myhome_pool" {
+  name = "myhome-user-pool"
+
+  # 認証方法（メールアドレスを ID にする）
+  username_attributes = ["email"]
+  auto_verified_attributes = ["email"]
+
+  # パスワードポリシー
+  password_policy {
+    minimum_length    = 8
+    require_uppercase = false
+    require_lowercase = false
+    require_numbers   = false
+    require_symbols   = false
+  }
+
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
+}
+
+
+resource "aws_cognito_user_pool_client" "myhome_client" {
+  name                = "myhome-spa-client"
+  user_pool_id        = aws_cognito_user_pool.myhome_pool.id
+  generate_secret     = false  # SPA ではクライアントシークレットなしで認証する
+  allowed_oauth_flows = ["implicit", "code"]
+  allowed_oauth_scopes = ["openid", "email", "profile"]
+  
+  # CloudFront の URL を動的に設定
+  callback_urls = ["https://${aws_cloudfront_distribution.cdn.domain_name}/login"]
+  logout_urls   = ["https://${aws_cloudfront_distribution.cdn.domain_name}/logout"]
+
+  supported_identity_providers = ["COGNITO"]
+  allowed_oauth_flows_user_pool_client = true
+}
+
+
+output "cognito_issuer" {
+  value = aws_cognito_user_pool.myhome_pool.endpoint
+}
+locals {
+  cognito_jwks_url = "https://${aws_cognito_user_pool.myhome_pool.endpoint}/.well-known/jwks.json"
+}
+
+data "http" "cognito_jwks" {
+  url = local.cognito_jwks_url
+}
+
+output "cognito_jwks" {
+  value = data.http.cognito_jwks.response_body
+}
+output "cloudfront_domain" {
+  value = aws_cloudfront_distribution.cdn.domain_name
+}
+
+
+
+
+# Lambda@Edge のスクリプトを CloudFront のドメイン付きで生成
+data "template_file" "check_auth_lambda" {
+  template = file("${path.module}/lambda@edge/check-auth.tpl.ts")
+
+  vars = {
+    cloudfront_domain = aws_cloudfront_distribution.cdn.domain_name
+    cognito_client_id = aws_cognito_user_pool_client.myhome_client.id
+    cognito_issuer = aws_cognito_user_pool.myhome_pool.endpoint
+    cognito_jwks = data.http.cognito_jwks.response_body 
+  }
+}
+
+# Lambda のコードをファイルとして保存
+resource "local_file" "check_auth_lambda_ts" {
+  content  = data.template_file.check_auth_lambda.rendered
+  filename = "${path.module}/generated/check-auth.ts"
+}
+
+resource "null_resource" "zip_check_auth_lambda" {
+  depends_on = [local_file.check_auth_lambda_ts]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      7z a -tzip ${path.module}/generated/check-auth.zip ${path.module}/generated/check-auth.ts
+    EOT
+  }
+}
+
+resource "aws_lambda_function" "check_auth_lambda" {
+  function_name    = "check-auth"
+  role             = aws_iam_role.lambda_exec_role.arn
+  runtime          = "nodejs18.x"
+  handler          = "check-auth.handler"
+
+  filename         = "${path.module}/generated/check-auth.zip"
+  source_code_hash = filebase64sha256("${path.module}/generated/check-auth.zip")
+
+  depends_on = [null_resource.zip_check_auth_lambda]
+
+  tags = {
+    Project = "MYHOME_TOOLS"
+  }
+}
