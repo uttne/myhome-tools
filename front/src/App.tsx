@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HomeContent } from "./contents/HomeContent";
 import { ProfileContent } from "./contents/ProfileContent";
 import { SettingsContent } from "./contents/SettingsContent";
+import { Topbar } from "./parts/Topbar";
 
 function App() {
   const [isOpen, setIsOpen] = useState(true);
@@ -15,6 +16,7 @@ function App() {
     <>
       <div className="flex flex-col h-screen">
         <Router>
+          <Topbar />
           <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
           <ContentArea isOpen={isOpen}>
             <Routes>
