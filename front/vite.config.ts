@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/", // GitHub Pages でデプロイする場合は "/repo名/" に変更
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
