@@ -45,13 +45,11 @@ export function HomeContent() {
       {
         display: "ボタン1",
         icon: <span>🔍</span>,
-        color: "primary",
         onClick: () => {},
       },
       {
         display: "ボタン1",
         icon: <PlusCircle />,
-        color: "secondary",
         onClick: () => {},
       },
     ]);

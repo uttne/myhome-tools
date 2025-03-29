@@ -3,7 +3,6 @@ import {create} from 'zustand';
 export type ControlButtonData = {
   display: string;
   icon?: React.ReactNode;
-  color: "red" | "green" | "blue" | "primary" | "secondary";
   onClick: () => void;
 }
 
