@@ -11,6 +11,12 @@ module "s3" {
   cloudfront_oai_arn = module.cloudfront.oai_arn 
 }
 
+module "s3_contents" {
+  source            = "./modules/s3_contents"
+  bucket_name       = "myhome-tools-contents-bucket"
+  cloudfront_oai_arn = module.cloudfront.oai_arn
+}
+
 module "cloudfront" {
   source                 = "./modules/cloudfront"
   s3_origin_domain       = module.s3.bucket_regional_domain_name
