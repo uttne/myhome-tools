@@ -7,6 +7,11 @@
 #   }
 # }
 
+provider "aws" {
+  alias = "us_east_1"
+  region = "us-east-1"
+}
+
 locals {
   template = file(var.lambda_edge_source)
   replaced = replace(
@@ -35,6 +40,7 @@ data "archive_file" "check_auth_lambda_zip" {
 }
 
 resource "aws_lambda_function" "check_auth_lambda" {
+  provider = aws.us_east_1
   depends_on       = [data.archive_file.check_auth_lambda_zip]
   function_name    = "check-auth"
   role             = var.lambda_role_arn
