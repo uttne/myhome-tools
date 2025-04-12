@@ -3,11 +3,13 @@ import fs from "fs";
 import path from "path";
 import ignore from "ignore";
 import { parse } from "ts-command-line-args";
+import clipboardy from "clipboardy"; // ★ 追加
 
 /* ───── 1. CLI ───── */
 interface IArgs {
   repoPath: string; // 既定 "."
   output?: string; // 既定 "llm_input.txt"
+  copy?: boolean; // --copy / -c でクリップボードへ
   help?: boolean;
 }
 
@@ -15,6 +17,7 @@ const args = parse<IArgs>(
   {
     repoPath: { type: String, defaultValue: "." },
     output: { type: String, optional: true },
+    copy: { type: Boolean, alias: "c", optional: true }, // ★
     help: { type: Boolean, alias: "h", optional: true },
   },
   {
@@ -24,7 +27,7 @@ const args = parse<IArgs>(
         header: "collect",
         content:
           "Collect text files under <repoPath>, respecting .gitignore / .llmignore in every folder.\n" +
-          "Binary files are noted with a placeholder.",
+          "Binary files are noted with a placeholder. Use --copy to send the result to your clipboard.",
       },
     ],
   }
@@ -100,9 +103,19 @@ function walk(root: string, rel: string): void {
 addIgnoreFile(path.join(ROOT, ".gitignore"), "");
 addIgnoreFile(path.join(ROOT, ".llmignore"), "");
 
-const outDir = path.dirname(OUTPUT);
-fs.mkdirSync(outDir, { recursive: true }); // 出力フォルダを自動生成
+fs.mkdirSync(path.dirname(OUTPUT), { recursive: true }); // 出力フォルダを自動生成
 
 const out = fs.createWriteStream(OUTPUT, "utf-8");
 walk(ROOT, ""); // ルートから開始
-out.end(() => console.log(`✅  Saved to ${OUTPUT}`));
+out.end(() => {
+  console.log(`✅  Saved to ${OUTPUT}`);
+  if (args.copy) {
+    try {
+      const content = fs.readFileSync(OUTPUT, "utf-8");
+      clipboardy.writeSync(content); // ★ クリップボードへ
+      console.log("📋  Copied output to clipboard.");
+    } catch (err: any) {
+      console.error(`⚠️  Failed to copy to clipboard: ${err.message}`);
+    }
+  }
+});
