@@ -20,6 +20,7 @@ module "s3_contents" {
 module "cloudfront" {
   source                 = "./modules/cloudfront"
   s3_origin_domain       = module.s3.bucket_regional_domain_name
+  s3_contents_origin_domain       = module.s3_contents.bucket_regional_domain_name
   # lambda_api モジュールで作成した API Gateway のエンドポイントを利用
   api_gateway_endpoint   = module.lambda_api.api_endpoint
   default_root_object    = "index.html"
