@@ -6,16 +6,16 @@ import { parse } from "ts-command-line-args";
 
 /* ───── 1. CLI ───── */
 interface IArgs {
-  repoPath: string;      // 既定 "."
-  output?:  string;      // 既定 "llm_input.txt"
-  help?:    boolean;
+  repoPath: string; // 既定 "."
+  output?: string; // 既定 "llm_input.txt"
+  help?: boolean;
 }
 
 const args = parse<IArgs>(
   {
     repoPath: { type: String, defaultValue: "." },
-    output:   { type: String, optional: true },
-    help:     { type: Boolean, alias: "h", optional: true },
+    output: { type: String, optional: true },
+    help: { type: Boolean, alias: "h", optional: true },
   },
   {
     helpArg: "help",
@@ -31,7 +31,7 @@ const args = parse<IArgs>(
 );
 
 /* ───── 2. パス解決 ───── */
-const ROOT   = path.resolve(args.repoPath);
+const ROOT = path.resolve(args.repoPath);
 const OUTPUT = args.output
   ? path.resolve(process.cwd(), args.output)
   : "llm_input.txt";
@@ -45,9 +45,9 @@ function addIgnoreFile(filePath: string, dirRel: string): void {
   const patterns = fs
     .readFileSync(filePath, "utf-8")
     .split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(l => l && !l.startsWith("#"))
-    .map(line => {
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"))
+    .map((line) => {
       const neg = line.startsWith("!");
       let pat = neg ? line.slice(1) : line;
       if (pat.startsWith("/")) pat = pat.slice(1); // ルート基準 → 削除
@@ -101,8 +101,8 @@ addIgnoreFile(path.join(ROOT, ".gitignore"), "");
 addIgnoreFile(path.join(ROOT, ".llmignore"), "");
 
 const outDir = path.dirname(OUTPUT);
-fs.mkdirSync(outDir, { recursive: true });   // 出力フォルダを自動生成
+fs.mkdirSync(outDir, { recursive: true }); // 出力フォルダを自動生成
 
 const out = fs.createWriteStream(OUTPUT, "utf-8");
-walk(ROOT, "");                // ルートから開始
+walk(ROOT, ""); // ルートから開始
 out.end(() => console.log(`✅  Saved to ${OUTPUT}`));
