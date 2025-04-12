@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "a": "ts-node main.ts --help",
-    "front": "ts-node main.ts --repoPath ./../front --output output/front_llm.txt"
+    "front": "tsx main.ts --repoPath ./../front --output output/front_llm.txt"
   },
   "keywords": [],
   "author": "",
