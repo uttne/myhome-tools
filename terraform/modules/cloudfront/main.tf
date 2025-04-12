@@ -81,20 +81,6 @@ resource "aws_cloudfront_distribution" "cdn" {
     max_ttl     = 0
   }
 
-  # ここでカスタムエラー応答を追加
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/${var.default_root_object}" # 例: "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/${var.default_root_object}"
-    error_caching_min_ttl = 0
-  }
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "CDN for SPA and API"
