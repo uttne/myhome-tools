@@ -15,8 +15,8 @@ jest.unstable_mockModule('aws-jwt-verify', () => ({
 }));
 
 // ─── ② mock 完了後に動的 import で被テストコードを読み込む ────────
-import { Config } from "../src/check-auth.tpl";
-const { createHandler } = await import('../src/check-auth.tpl');
+import { Config } from "../src/index.tpl";
+const { createHandler } = await import('../src/index.tpl');
 
 // ─── CloudFront イベントを生成するヘルパー ────────────────────
 function makeEvent(authHeader?: string) {

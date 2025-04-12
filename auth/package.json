@@ -7,7 +7,7 @@
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "build": "esbuild src/index.tpl.ts --bundle --platform=node --target=node18 --format=esm --minify --outfile=dist/index.tpl.mjs",
-    "clear": "rm -rf dist"
+    "clear": "rimraf dist"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.25.2",
     "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
