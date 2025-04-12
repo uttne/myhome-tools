@@ -43,7 +43,7 @@ module "lambda_api" {
 
 module "cognito" {
   source             = "./modules/cognito"
-  app_domain  = ""
+  app_domain  = "${var.subdomain}.${var.base_domain}"
 }
 
 module "lambda_edge" {
