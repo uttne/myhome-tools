@@ -1,156 +1,49 @@
-// const COGNITO_LOGIN_URL = "https://${cloudfront_domain}/login";
-// const COGNITO_CLIENT_ID = "${cognito_client_id}";
-// const COGNITO_ISSUER = "${cognito_issuer}";
-// const COGNITO_JWKS = JSON.parse("${cognito_jwks}");
-import { webcrypto } from 'crypto';
-globalThis.crypto = webcrypto as unknown as Crypto;
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 export interface Config {
   cognitoLoginUrl: string;
   cognitoClientId: string;
-  cognitoIssuer: string;
-  cognitoJwks: string;
+  cognitoUserPoolId: string;
 }
 
 /**
- * JWK 形式のキーを PEM 形式に変換
+ * Lambda@Edge Viewer Request 用 JWT 検証ハンドラを生成します。
+ * aws‑jwt‑verify が JWKS を自動取得・キャッシュするため、
+ * コールドスタート時に 1 回だけ hydrate() を呼び出しておきます。
  */
-const convertJwkToCryptoKey = async (jwk: any): Promise<CryptoKey> => {
-  if (!jwk.n || !jwk.e) {
-    throw new Error("Invalid JWK format");
-  }
+export async function createHandler(config: Config) {
+  const { cognitoLoginUrl, cognitoClientId, cognitoUserPoolId } = config;
 
-  return await crypto.subtle.importKey(
-    "jwk",
-    {
-      kty: "RSA",
-      e: jwk.e,
-      n: jwk.n,
-      alg: "RS256",
-      ext: true,
-    },
-    {
-      name: "RSASSA-PKCS1-v1_5",
-      hash: { name: "SHA-256" },
-    },
-    false,
-    ["verify"]
-  );
-};
+  // verifier は POP ごとに 1 インスタンスだけ作成される
+  const verifier = CognitoJwtVerifier.create({
+    userPoolId: cognitoUserPoolId,
+    tokenUse: "access",
+    clientId: cognitoClientId,
+  });
 
-/**
- * JWT のヘッダーをデコード
- */
-const decodeJwtHeader = (token: string): any => {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid JWT format");
-  }
-  return JSON.parse(
-    globalThis.Buffer.from(parts[0], "base64").toString("utf-8")
-  );
-};
-
-/**
- * JWT のペイロードをデコード
- */
-const decodeJwtPayload = (token: string): any => {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid JWT format");
-  }
-  return JSON.parse(
-    globalThis.Buffer.from(parts[1], "base64").toString("utf-8")
-  );
-};
-
-/**
- * JWT の署名を検証
- */
-const verifyJwtSignature = async (
-  token: string,
-  publicKey: CryptoKey
-): Promise<boolean> => {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid JWT format");
-  }
-
-  const headerAndPayload = globalThis.Buffer.from(parts[0] + "." + parts[1]);
-  const signature = globalThis.Buffer.from(parts[2], "base64");
-
-  return await crypto.subtle.verify(
-    "RSASSA-PKCS1-v1_5",
-    publicKey,
-    signature,
-    headerAndPayload
-  );
-};
-
-export function createHandler(config: Config) {
-  const cognitoLoginUrl = config.cognitoLoginUrl;
-  const cognitoClientId = config.cognitoClientId;
-  const cognitoIssuer = config.cognitoIssuer;
-  console.log(config.cognitoJwks);
-  const cognitoJwks = JSON.parse(config.cognitoJwks);
-
-  /**
-   * JWT の公開鍵を取得
-   */
-  const getPublicKey = async (kid: string): Promise<CryptoKey> => {
-    const jwk = cognitoJwks.keys.find((key: any) => key.kid === kid);
-    if (!jwk) {
-      throw new Error("Key ID not found");
-    }
-    return await convertJwkToCryptoKey(jwk);
-  };
+  // ★ コールドスタート時に JWKS をプリロード（数 KB / 数十 ms）
+  await verifier.hydrate();
 
   return async function handler(event: any) {
-    const request = event.Records[0].cf.request;
-    const headers = request.headers;
 
-    if (!headers.authorization || !headers.authorization[0].value) {
+    const request  = event.Records[0].cf.request;
+    const headers  = request.headers;
+
+    // Authorization ヘッダーが無ければ Cognito Hosted UI へリダイレクト
+    if (!headers.authorization || !headers.authorization[0]?.value) {
       return {
         status: "302",
         headers: {
-          location: [
-            {
-              key: "Location",
-              value: cognitoLoginUrl,
-            },
-          ],
+          location: [{ key: "Location", value: cognitoLoginUrl }],
         },
       };
     }
 
-    const token = headers.authorization[0].value.replace("Bearer ", "");
+    const token = headers.authorization[0].value.replace(/^Bearer\s+/i, "");
 
     try {
-      // JWT のヘッダーとペイロードをデコード
-      const decodedHeader = decodeJwtHeader(token);
-      const decodedPayload = decodeJwtPayload(token);
-
-      if (!decodedHeader.kid) {
-        throw new Error("Invalid token: Missing kid");
-      }
-
-      if (
-        decodedPayload.iss !== cognitoIssuer ||
-        decodedPayload.aud !== cognitoClientId
-      ) {
-        throw new Error("Invalid token: Issuer or Audience mismatch");
-      }
-
-      // Cognito の公開鍵を取得し、JWT を検証
-      const publicKey = await getPublicKey(decodedHeader.kid);
-      const isValid = await verifyJwtSignature(token, publicKey);
-
-      if (!isValid) {
-        throw new Error("Invalid JWT signature");
-      }
-      console.log("JWT Verified:", decodedPayload);
-
-      // 認証成功ならそのままリクエストを通す
+      await verifier.verify(token);
+      // 検証成功 → リクエストをそのままオリジンへ
       return request;
     } catch (err) {
       console.error("JWT Verification Failed:", err);
@@ -164,17 +57,18 @@ export function createHandler(config: Config) {
   };
 }
 
+// ────────────────────────────────────────────────────────────────
+// エントリーポイント（Lambda ハンドラ）
+// ────────────────────────────────────────────────────────────────
 let _handler: any = null;
 export async function handler(event: any) {
   if (!_handler) {
     const config: Config = {
       cognitoLoginUrl: "https://${cloudfront_domain}/login",
-      cognitoClientId: "${cognito_client_id}",
-      cognitoIssuer: "${cognito_issuer}",
-      // prettier-ignore
-      cognitoJwks: '${cognito_jwks}',
+      cognitoClientId:  "${cognito_client_id}",
+      cognitoUserPoolId: "${cognito_user_pool_id}",
     };
     _handler = createHandler(config);
   }
-  return await _handler(event);
+  return _handler(event);
 }

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      aws-jwt-verify:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@types/jest':
         specifier: ^29.5.14
@@ -390,6 +394,10 @@ packages:
 
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
+
+  aws-jwt-verify@5.0.0:
+    resolution: {integrity: sha512-FQM5EYEm7AnVJ3oeTpvBZQm7hYnpI067Em1oopHBs7cCNAcw8Aw8NFbojFjkNXifsOzyYe1ks+bg7Q9fMsTZSA==}
+    engines: {node: '>=16.0.0'}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -1730,6 +1738,8 @@ snapshots:
       sprintf-js: 1.0.3
 
   async@3.2.6: {}
+
+  aws-jwt-verify@5.0.0: {}
 
   babel-jest@29.7.0(@babel/core@7.26.10):
     dependencies:
