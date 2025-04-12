@@ -2,21 +2,21 @@
  * @jest-environment node
  */
 
-import { createHandler, Config } from "../src/check-auth.tpl";
+import { jest } from '@jest/globals';
 
-// ─── aws‑jwt‑verify を丸ごとモック ───────────────────────────────
-const verifyMock = jest.fn();
-const hydrateMock = jest.fn().mockResolvedValue(undefined);
+// ─── ① aws‑jwt‑verify を先にモック ───────────────────────────────
+const verifyMock  = jest.fn();
+const hydrateMock = jest.fn().mockResolvedValue(undefined as never); // hydrate() は成功を模擬
 
-jest.mock("aws-jwt-verify", () => ({
-  __esModule: true,
+jest.unstable_mockModule('aws-jwt-verify', () => ({
   CognitoJwtVerifier: {
-    create: jest.fn(() => ({
-      verify: verifyMock, // 各テストで resolve / reject を切り替える
-      hydrate: hydrateMock, // createHandler 内で 1 回呼ばれる
-    })),
+    create: jest.fn(() => ({ verify: verifyMock, hydrate: hydrateMock })),
   },
 }));
+
+// ─── ② mock 完了後に動的 import で被テストコードを読み込む ────────
+import { Config } from "../src/check-auth.tpl";
+const { createHandler } = await import('../src/check-auth.tpl');
 
 // ─── CloudFront イベントを生成するヘルパー ────────────────────
 function makeEvent(authHeader?: string) {
@@ -67,7 +67,7 @@ describe("check-auth handler", () => {
   });
 
   test("トークンが有効ならリクエストをそのまま通す", async () => {
-    verifyMock.mockResolvedValue({ sub: "user-123" }); // 検証成功を模擬
+    verifyMock.mockResolvedValue({ sub: "user-123" } as never); // 検証成功を模擬
 
     const token = "header.payload.signature";
     const event = makeEvent(`Bearer ${token}`);
@@ -80,7 +80,7 @@ describe("check-auth handler", () => {
   });
 
   test("トークンが無効なら 302 でリダイレクト", async () => {
-    verifyMock.mockRejectedValue(new Error("invalid token")); // 検証失敗を模擬
+    verifyMock.mockRejectedValue(new Error("invalid token") as never); // 検証失敗を模擬
 
     const token = "bad.token";
     const res = await handler(makeEvent(`Bearer ${token}`));

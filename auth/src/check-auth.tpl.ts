@@ -68,7 +68,7 @@ export async function handler(event: any) {
       cognitoClientId:  "${cognito_client_id}",
       cognitoUserPoolId: "${cognito_user_pool_id}",
     };
-    _handler = createHandler(config);
+    _handler = await createHandler(config);
   }
   return _handler(event);
 }
