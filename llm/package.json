@@ -1,0 +1,23 @@
+{
+  "name": "llm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "a": "ts-node main.ts --help",
+    "front": "ts-node main.ts --repoPath ./../front --output output/front_llm.txt"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ignore": "^7.0.3",
+    "ts-command-line-args": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
