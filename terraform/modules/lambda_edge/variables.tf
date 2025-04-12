@@ -18,6 +18,10 @@ variable "cognito_jwks" {
   type        = string
 }
 
+variable "cognito_user_pool_id" {
+  description = "Cognito のユーザープール ID"
+  type        = string
+}
 variable "lambda_edge_source" {
   description = "Lambda@Edge 用テンプレートファイルのパス"
   type        = string

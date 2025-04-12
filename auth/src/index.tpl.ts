@@ -64,9 +64,9 @@ let _handler: any = null;
 export async function handler(event: any) {
   if (!_handler) {
     const config: Config = {
-      cognitoLoginUrl: "https://${cloudfront_domain}/login",
-      cognitoClientId:  "${cognito_client_id}",
-      cognitoUserPoolId: "${cognito_user_pool_id}",
+      cognitoLoginUrl: "https://__CLOUDFRONT_DOMAIN__/login",
+      cognitoClientId:  "__COGNITO_CLIENT_ID__",
+      cognitoUserPoolId: "__COGNITO_USER_POOL_ID__",
     };
     _handler = await createHandler(config);
   }

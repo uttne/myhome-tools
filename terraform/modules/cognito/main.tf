@@ -44,3 +44,7 @@ output "jwks" {
 output "client_id" {
   value = aws_cognito_user_pool_client.myhome_client.id
 }
+
+output "user_pool_id" {
+  value = aws_cognito_user_pool.myhome_pool.id
+}
