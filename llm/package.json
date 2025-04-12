@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "front": "tsx main.ts --repoPath ./../front --output output/front.txt",
-    "backend": "tsx main.ts --repoPath ./../backend --output output/backend.txt",
-    "terraform": "tsx main.ts --repoPath ./../terraform --output output/terraform.txt",
-    "auth": "tsx main.ts --repoPath ./../auth --output output/auth.txt"
+    "front": "tsx main.ts --repoPath ./../front --output output/front.txt --copy",
+    "backend": "tsx main.ts --repoPath ./../backend --output output/backend.txt --copy",
+    "terraform": "tsx main.ts --repoPath ./../terraform --output output/terraform.txt --copy",
+    "auth": "tsx main.ts --repoPath ./../auth --output output/auth.txt --copy"
   },
   "keywords": [],
   "author": "",
