@@ -30,3 +30,19 @@ variable "lambda_edge_function_version_arn" {
   type        = string
   default     = ""
 }
+
+variable "acm_certificate_arn" {
+  description = "ACM 証明書の ARN"
+  type        = string
+  default     = ""
+}
+
+variable "base_domain" {
+  description = "ベースとなるドメイン（例: example.com）"
+  type        = string
+}
+
+variable "subdomain" {
+  description = "サブドメイン（例: subdomain.example.com の subdomain 部分）"
+  type        = string
+}

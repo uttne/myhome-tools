@@ -2,6 +2,7 @@
 
 resource "aws_s3_bucket" "content_bucket" {
   bucket = var.bucket_name
+  force_destroy = true
   tags = {
     Project = "MYHOME_TOOLS"
   }
@@ -29,7 +30,7 @@ resource "aws_s3_bucket_policy" "content_bucket" {
         Sid       = "AllowCloudFrontAccess",
         Effect    = "Allow",
         Principal = {
-          AWS = var.cloudfront_oai_arn
+          CanonicalUser = var.cloudfront_s3_canonical_user_id
         },
         Action    = "s3:GetObject",
         Resource  = "${aws_s3_bucket.content_bucket.arn}/*"

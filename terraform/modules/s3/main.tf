@@ -42,7 +42,7 @@ resource "aws_s3_bucket_policy" "spa_bucket" {
         Sid       = "AllowCloudFrontAccess",
         Effect    = "Allow",
         Principal = {
-          AWS = var.cloudfront_oai_arn
+          CanonicalUser = var.cloudfront_s3_canonical_user_id
         },
         Action    = "s3:GetObject",
         Resource  = "${aws_s3_bucket.spa_bucket.arn}/*"

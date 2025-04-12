@@ -8,13 +8,13 @@ module "s3" {
   spa_source_dir   = "${path.module}/../front/dist"
   # CloudFront OAI の ARN は後で CloudFront モジュールから出力される値を利用するか、
   # 初回は仮の値として渡して、apply 後に更新する方法もあります。
-  cloudfront_oai_arn = module.cloudfront.oai_arn 
+  cloudfront_s3_canonical_user_id = module.cloudfront.cloudfront_s3_canonical_user_id 
 }
 
 module "s3_contents" {
   source            = "./modules/s3_contents"
   bucket_name       = "myhome-tools-contents-bucket"
-  cloudfront_oai_arn = module.cloudfront.oai_arn
+  cloudfront_s3_canonical_user_id = module.cloudfront.cloudfront_s3_canonical_user_id
 }
 
 module "cloudfront" {
@@ -26,6 +26,9 @@ module "cloudfront" {
   default_root_object    = "index.html"
   oai_comment            = "OAI for SPA S3 bucket"
   lambda_edge_function_version_arn = module.lambda_edge.lambda_edge_function_version_arn
+  acm_certificate_arn    = module.acm.acm_certificate_arn
+  base_domain        = var.base_domain
+  subdomain          = var.subdomain
 }
 
 module "iam" {
@@ -49,4 +52,17 @@ module "lambda_edge" {
   cognito_user_pool_id = module.cognito.user_pool_id
   lambda_edge_source = "${path.module}/../auth/dist/index.tpl.mjs"
   lambda_role_arn    = module.iam.lambda_exec_role_arn
+}
+
+module "route53" {
+  source             = "./modules/route53"
+  base_domain        = var.base_domain
+  subdomain          = var.subdomain
+  cloudfront_domain  = module.cloudfront.domain_name
+}
+
+module "acm" {
+  source             = "./modules/acm"
+  base_domain        = var.base_domain
+  subdomain          = var.subdomain
 }

@@ -1,3 +1,7 @@
+locals {
+  full_subdomain = "${var.subdomain}.${var.base_domain}"
+}
+
 resource "aws_cloudfront_function" "spa_function" {
   name    = "SPAFunction"
   runtime = "cloudfront-js-2.0"
@@ -111,8 +115,16 @@ resource "aws_cloudfront_distribution" "cdn" {
       restriction_type = "none"
     }
   }
+
+  
+  aliases = [ local.full_subdomain ]
+
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = var.acm_certificate_arn
+    ssl_support_method = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+    # cloudfront_default_certificate = true  # ACM 証明書を使用する場合は false にする
+    cloudfront_default_certificate = false
   }
   tags = {
     Project = "MYHOME_TOOLS"

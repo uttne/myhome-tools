@@ -3,7 +3,7 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "cloudfront_oai_arn" {
+variable "cloudfront_s3_canonical_user_id" {
   description = "CloudFront の OAI ARN（バケットポリシー用）"
   type        = string
 }
