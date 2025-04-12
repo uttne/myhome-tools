@@ -1,23 +1,7 @@
-variable "cloudfront_domain" {
-  description = "CloudFront のドメイン"
-  type        = string
-}
-
 variable "cognito_client_id" {
   description = "Cognito User Pool Client の ID"
   type        = string
 }
-
-variable "cognito_issuer" {
-  description = "Cognito の Issuer URL"
-  type        = string
-}
-
-variable "cognito_jwks" {
-  description = "Cognito の JWKS レスポンス"
-  type        = string
-}
-
 variable "cognito_user_pool_id" {
   description = "Cognito のユーザープール ID"
   type        = string

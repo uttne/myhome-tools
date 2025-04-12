@@ -24,3 +24,9 @@ variable "oai_comment" {
   type        = string
   default     = "OAI for SPA S3 bucket"
 }
+
+variable "lambda_edge_function_version_arn" {
+  description = "Lambda@Edge の関数 ARN"
+  type        = string
+  default     = ""
+}

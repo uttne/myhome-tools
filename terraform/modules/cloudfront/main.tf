@@ -1,3 +1,11 @@
+resource "aws_cloudfront_function" "spa_function" {
+  name    = "SPAFunction"
+  runtime = "cloudfront-js-2.0"
+  comment = "SPA を構成するための CloudFront Function"
+  publish = true
+  code    = file("${path.module}/functions/spa.js")
+}
+
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = var.oai_comment
 }
@@ -41,6 +49,14 @@ resource "aws_cloudfront_distribution" "cdn" {
         forward = "none"
       }
     }
+
+    // /api/* と /contents/* では存在しない場合にエラーを返すようにするため、
+    // CustomErrorResponse を設定せずに CloudFront Function を利用する。
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_function.arn
+    }
+    
     min_ttl     = 0
     default_ttl = 0
     max_ttl     = 0
@@ -75,6 +91,11 @@ resource "aws_cloudfront_distribution" "cdn" {
         forward = "none"
       }
       headers = ["Authorization"]
+    }
+    lambda_function_association {
+      event_type = "viewer-request"
+      lambda_arn = var.lambda_edge_function_version_arn
+      include_body = false
     }
     min_ttl     = 0
     default_ttl = 0

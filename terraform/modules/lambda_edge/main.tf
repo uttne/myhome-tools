@@ -16,10 +16,7 @@ locals {
   template = file(var.lambda_edge_source)
   replaced = replace(
     replace(
-      replace(
-        local.template,
-        "__CLOUDFRONT_DOMAIN__", var.cloudfront_domain
-      ),
+      local.template,
       "__COGNITO_CLIENT_ID__", var.cognito_client_id
     ),
     "__COGNITO_USER_POOL_ID__", var.cognito_user_pool_id
@@ -48,6 +45,8 @@ resource "aws_lambda_function" "check_auth_lambda" {
   handler          = "index.handler"
   filename         = data.archive_file.check_auth_lambda_zip.output_path
   source_code_hash = data.archive_file.check_auth_lambda_zip.output_base64sha256
+  # バージョンを作成する
+  publish          = true
   tags = {
     Project = "MYHOME_TOOLS"
   }

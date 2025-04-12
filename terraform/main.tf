@@ -25,6 +25,7 @@ module "cloudfront" {
   api_gateway_endpoint   = module.lambda_api.api_endpoint
   default_root_object    = "index.html"
   oai_comment            = "OAI for SPA S3 bucket"
+  lambda_edge_function_version_arn = module.lambda_edge.lambda_edge_function_version_arn
 }
 
 module "iam" {
@@ -39,16 +40,13 @@ module "lambda_api" {
 
 module "cognito" {
   source             = "./modules/cognito"
-  cloudfront_domain  = module.cloudfront.domain_name
+  app_domain  = ""
 }
 
 module "lambda_edge" {
   source             = "./modules/lambda_edge"
-  cloudfront_domain  = module.cloudfront.domain_name
   cognito_client_id  = module.cognito.client_id
   cognito_user_pool_id = module.cognito.user_pool_id
-  cognito_issuer     = module.cognito.issuer
-  cognito_jwks       = module.cognito.jwks
   lambda_edge_source = "${path.module}/../auth/dist/index.tpl.mjs"
   lambda_role_arn    = module.iam.lambda_exec_role_arn
 }

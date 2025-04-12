@@ -23,8 +23,8 @@ resource "aws_cognito_user_pool_client" "myhome_client" {
   generate_secret                  = false
   allowed_oauth_flows              = ["implicit", "code"]
   allowed_oauth_scopes             = ["openid", "email", "profile"]
-  callback_urls                    = ["https://${var.cloudfront_domain}/login"]
-  logout_urls                      = ["https://${var.cloudfront_domain}/logout"]
+  callback_urls                    = ["https://${var.app_domain}/auth/login"]
+  logout_urls                      = ["https://${var.app_domain}/"]
   supported_identity_providers     = ["COGNITO"]
   allowed_oauth_flows_user_pool_client = true
 }
