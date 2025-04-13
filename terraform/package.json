@@ -8,6 +8,7 @@
     "terraform": "dotenv -- terraform",
     "init": "dotenv -- terraform init -upgrade",
     "apply": "dotenv -- terraform apply",
+    "output": "dotenv -- terraform output",
     "destroy": "dotenv -- terraform destroy"
   },
   "keywords": [],
