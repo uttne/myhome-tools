@@ -1,6 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({path: path.resolve(__dirname, "./../terraform/.env.cognito")});
 
 // https://vite.dev/config/
 export default defineConfig({

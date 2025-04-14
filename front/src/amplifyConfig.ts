@@ -1,21 +1,10 @@
 import {Amplify} from 'aws-amplify';
 
-
-// Amplify.configure({
-//   Auth: {
-//     Cognito: {
-//       userPoolId: 'ap-northeast-1_OrCE4puWF',
-//       userPoolClientId: '3mhljvrsf6cnuleinscd23atda',
-//       identityPoolId: ""
-//     }
-//   }
-// });
-
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
-      userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
+      userPoolId: import.meta.env.VITE_cognito_user_pool_id,
+      userPoolClientId: import.meta.env.VITE_cognito_user_pool_web_client_id,
       // optional settings
       signUpVerificationMethod: 'code',
       loginWith: {
