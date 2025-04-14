@@ -9,12 +9,21 @@
     "init": "dotenv -- terraform init -upgrade",
     "apply": "dotenv -- terraform apply",
     "output": "dotenv -- terraform output",
-    "destroy": "dotenv -- terraform destroy"
+    "destroy": "dotenv -- terraform destroy",
+    "tool:createTestUsers": "tsx ./tools/createTestUsers.ts",
+    "output:env:cognito": "dotenv -- terraform output -json | jq -r \"to_entries | .[] | \\\"VITE_\\(.key)=\\(.value.value)\\\"\" > ./.env.cognito",
+    "all": "npm-run-all apply output:env:cognito tool:createTestUsers"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "dotenv-cli": "^8.0.0"
+    "@aws-sdk/client-cognito-identity-provider": "^3.787.0",
+    "@types/node": "^22.14.1",
+    "dotenv": "^16.5.0",
+    "dotenv-cli": "^8.0.0",
+    "js-yaml": "^4.1.0",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.19.3"
   }
 }

@@ -1,0 +1,7 @@
+users:
+  - username: testuser1
+    email: testuser1@example.com
+    temporaryPassword: TempPass123!
+  - username: testuser2
+    email: testuser2@example.com
+    temporaryPassword: TempPass123!
