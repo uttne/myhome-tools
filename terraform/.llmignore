@@ -2,3 +2,4 @@
 .gitignore
 .llmignore
 README.md
+pnpm-lock.yaml
