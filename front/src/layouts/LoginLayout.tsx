@@ -1,9 +1,9 @@
-import { LoginContent } from "../contents/LoginContent"; // ログイン用のコンテンツ
+import { Outlet } from "react-router-dom";
 
 const LoginLayout = () => {
   return (
     <div className="flex flex-col h-screen">
-        <LoginContent />
+        <Outlet />
     </div>
   );
 };
