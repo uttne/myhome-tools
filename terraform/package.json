@@ -13,7 +13,7 @@
     "tool:cUsers": "tsx ./tools/createTestUsers.ts",
     "tool:dUsers": "tsx ./tools/deleteTestUsers.ts",
     "output:env:cognito": "dotenv -- terraform output -json | jq -r \"to_entries | .[] | \\\"VITE_\\(.key)=\\(.value.value)\\\"\" > ./.env.cognito",
-    "all": "npm-run-all apply output:env:cognito tool:createTestUsers"
+    "all": "npm-run-all apply output:env:cognito tool:cUsers"
   },
   "keywords": [],
   "author": "",
