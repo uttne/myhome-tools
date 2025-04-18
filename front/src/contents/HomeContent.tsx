@@ -2,6 +2,7 @@ import { PlusCircle } from "lucide-react";
 import useControlBoxState from "../stores/ControlStore";
 
 import { useEffect } from "react";
+import { BasicCard } from "../parts/BasicCard";
 
 const cards = [
   { id: 1, title: "カード1", description: "これはカード1の説明です。" },
@@ -21,21 +22,6 @@ const cards = [
   { id: 15, title: "カード15", description: "これはカード15の説明です。" },
   { id: 16, title: "カード16", description: "これはカード16の説明です。" },
 ];
-
-const Card = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-shadow duration-300">
-      <h2 className="text-xl font-semibold mb-2">{title}</h2>
-      <p className="text-gray-600">{description}</p>
-    </div>
-  );
-};
 
 export function HomeContent() {
   const { setButtons } = useControlBoxState();
@@ -62,7 +48,7 @@ export function HomeContent() {
       <div className="container mx-auto p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {cards.map((card) => (
-            <Card
+            <BasicCard
               key={card.id}
               title={card.title}
               description={card.description}
