@@ -6,7 +6,7 @@ import { RequireAuthArea } from "./layouts/RequireAuthArea";
 import { LoginContent } from "./contents/LoginContent";
 import { NewPasswordContent } from "./contents/NewPasswordContent";
 import { NotFoundContent } from "./contents/NotFoundContent";
-import { ShoppingContent } from "./contents/Shopping";
+import { ShoppingContent } from "./contents/ShoppingContent";
 
 function App() {
   return (
