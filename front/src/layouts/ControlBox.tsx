@@ -4,7 +4,7 @@ import useControlBoxState, { ControlBoxButtonData } from "../stores/ControlStore
 function ControlBoxButton({data}:{data: ControlBoxButtonData}) {
 
   return (
-    <button  className={`text-black px-4 py-2 rounded-full active:scale-95 transition-transform duration-50`}>
+    <button  className={`text-black px-4 py-2 rounded-full active:scale-95 transition-transform duration-50`} onClick={data.onClick}>
       <div className="flex items-center gap-2">
         {data.icon ? data.icon : <></>}
         <span>{data.display}</span>
