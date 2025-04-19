@@ -6,6 +6,7 @@ import { RequireAuthArea } from "./layouts/RequireAuthArea";
 import { LoginContent } from "./contents/LoginContent";
 import { NewPasswordContent } from "./contents/NewPasswordContent";
 import { NotFoundContent } from "./contents/NotFoundContent";
+import { ShoppingContent } from "./contents/Shopping";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route element={<RequireAuthArea />}>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<HomeContent />} />
+          <Route path="/shopping" element={<ShoppingContent />} />
           <Route path="/profile" element={<ProfileContent />} />
           <Route path="/settings" element={<SettingsContent />} />
           <Route path="*" element={<NotFoundContent />} />
