@@ -1,6 +1,7 @@
-import { Home, Menu, Settings, User, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useNavigationState from "../stores/NavigationStore";
 
 function TopbarDialogItem({
   icon,
@@ -34,6 +35,7 @@ function TopbarDialogItem({
 
 export function Topbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const {navigations} = useNavigationState();
   return (
     <div className="sm:hidden fixed top-0 left-0 w-full bg-gray-800 text-white h-14 px-4 flex justify-between items-center z-20">
       <h1 className="text-lg font-semibold">App Title</h1>
@@ -59,24 +61,15 @@ export function Topbar() {
             </button>
             <nav>
               <div className="space-y-4 text-black">
-                <TopbarDialogItem
-                  icon={<Home />}
-                  text="Home"
-                  path="/"
-                  onClick={() => setMenuOpen(false)}
-                />
-                <TopbarDialogItem
-                  icon={<User />}
-                  text="Profile"
-                  path="/profile"
-                  onClick={() => setMenuOpen(false)}
-                />
-                <TopbarDialogItem
-                  icon={<Settings />}
-                  text="Settings"
-                  path="/settings"
-                  onClick={() => setMenuOpen(false)}
-                />
+                {navigations.map((item, index) => (
+                  <TopbarDialogItem
+                    key={index}
+                    icon={item.icon}
+                    text={item.display}
+                    path={item.path}
+                    onClick={() => setMenuOpen(false)}
+                  />
+                ))}
               </div>
             </nav>
           </div>

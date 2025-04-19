@@ -1,6 +1,7 @@
-import { Menu, Home, User, Settings } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSidebarState } from "../stores/SidebarStore";
+import useNavigationState from "../stores/NavigationStore";
 
 function SidebarItem({
   icon,
@@ -43,6 +44,7 @@ function SidebarItem({
 
 export function Sidebar() {
   const { isOpen, toggleOpen } = useSidebarState();
+  const {navigations} = useNavigationState();
   return (
     <div
       className={`${
@@ -57,17 +59,14 @@ export function Sidebar() {
       </div>
       <nav>
         <div className="space-y-2">
-          <SidebarItem icon={<Home />} text="Home" path={"/"} />
-          <SidebarItem
-            icon={<User />}
-            text="Profile"
-            path={"/profile"}
-          />
-          <SidebarItem
-            icon={<Settings />}
-            text="Settings"
-            path={"/settings"}
-          />
+          {navigations.map((item, index) => (
+            <SidebarItem
+              key={index}
+              icon={item.icon}
+              text={item.display}
+              path={item.path}
+            />
+          ))}
         </div>
       </nav>
     </div>
