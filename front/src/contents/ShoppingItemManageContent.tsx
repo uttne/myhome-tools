@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useShoppingMasterStore, {
   ShoppingMasterItem,
@@ -9,6 +9,7 @@ import data from "@emoji-mart/data"; // 絵文字データ
 import Picker from "@emoji-mart/react"; // Pickerコンポーネント
 import { DeleteButtonBox } from "../layouts/DeleteButtonBox";
 import { ConfirmDialog } from "../parts/ConfirmDialog";
+import { useSelectedMode } from "../hooks/useSelectedMode";
 
 // 詳細編集ダイアログ用のコンポーネント（簡易版）
 interface EditDialogProps {
@@ -127,20 +128,14 @@ export function ShoppingItemManageContent() {
 
   // ローカルState
   const [newItemName, setNewItemName] = useState("");
-  const [isDeleteMode, setIsDeleteMode] = useState(false); // 削除モード状態
-  const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
-    new Set()
-  ); // 選択中のアイテムID
+  
   const [showConfirmDialog, setShowConfirmDialog] = useState(false); // 削除確認ダイアログ表示状態
   const [showEditDialog, setShowEditDialog] = useState(false); // 詳細編集ダイアログ表示状態
   const [itemToEdit, setItemToEdit] = useState<ShoppingMasterItem | null>(null); // 編集中アイテム
 
-  // 長押し検出用の参照とタイマーID
-  const pressTimerRef = useRef<number | null>(null);
   const LONG_PRESS_THRESHOLD = 500; // ms
 
-  // 長押し検出後にクリックイベントを無視するためのフラグ
-  const isLongPressDetectedRef = useRef(false);
+  const {isSelectMode, selectedItemIds, exitSelectMode, selectPressStart, selectPressEnd, selectClick} = useSelectedMode(LONG_PRESS_THRESHOLD);
 
   // ControlBox ボタンをクリア
   useEffect(() => {
@@ -149,74 +144,22 @@ export function ShoppingItemManageContent() {
     // fetchData(); // ストア側で初回フェッチを制御する場合は不要
   }, [setButtons, fetchData]);
 
-  // 削除モードを終了する関数
-  const exitDeleteMode = () => {
-    setIsDeleteMode(false);
-    setSelectedItemIds(new Set());
-  };
 
   // 長押し開始ハンドラ
   const handleCardPressStart = (itemId: number) => {
-    // 既に削除モードの場合は何もしない（タップで選択切り替えになるため）
-    if (isDeleteMode) return;
-
-    // 念のため、長押し検出フラグをリセット
-    isLongPressDetectedRef.current = false;
-    if (pressTimerRef.current !== null) {
-      window.clearTimeout(pressTimerRef.current);
-      pressTimerRef.current = null;
-    }
-
-    // タイマーを設定
-    pressTimerRef.current = window.setTimeout(() => {
-      // 設定時間経過したら長押しと判定
-      setIsDeleteMode(true); // 削除モード開始
-      setSelectedItemIds(new Set([itemId])); // そのアイテムを選択状態にする
-      isLongPressDetectedRef.current = true; // 長押しが検出されたことを記録
-      pressTimerRef.current = null; // タイマーIDをクリア
-    }, LONG_PRESS_THRESHOLD);
+    selectPressStart(`${itemId}`); // 長押し開始
   };
 
   // 長押し終了ハンドラ (指を離した/マウスアップ)
   const handleCardPressEnd = () => {
-    // 設定されていたタイマーがあればクリア（長押し未満だった場合）
-    if (pressTimerRef.current !== null) {
-      window.clearTimeout(pressTimerRef.current);
-      pressTimerRef.current = null;
-    }
+    selectPressEnd();
   };
 
   // カードクリックハンドラ (タップ)
   const handleCardClick = (item: ShoppingMasterItem) => {
-    // 長押しタイマーが完了していたら、これは長押しの結果のクリックなので何もしない
-    // または、長押し終了ハンドラで preventDefault を使うなどするが、今回はシンプルにタイマーで判定
-    // もしくは、長押し後にクリックイベントが発生しないように制御する
-    // より正確な実装には複雑なタッチ/マウスイベントハンドリングが必要になります。
-    // ここでは、簡単のため「長押しモード中か？」で判定します。
+    selectClick(`${item.id}`); // クリックイベントを処理
 
-    // 長押し検出フラグが立っている場合は処理をスキップしフラグをリセット★
-    if (isLongPressDetectedRef.current) {
-      isLongPressDetectedRef.current = false; // フラグをリセット
-      console.log("Long press detected, ignoring click.");
-      return; // クリックイベントのこれ以上の処理を中止
-    }
-
-    if (isDeleteMode) {
-      // 削除モード中の場合は選択状態を切り替える
-      setSelectedItemIds((prevSelectedIds) => {
-        const newSelectedIds = new Set(prevSelectedIds);
-        if (newSelectedIds.has(item.id)) {
-          newSelectedIds.delete(item.id);
-          // 選択が全て解除されたら削除モードを終了
-          if (newSelectedIds.size === 0) {
-            exitDeleteMode();
-          }
-        } else {
-          newSelectedIds.add(item.id);
-        }
-        return newSelectedIds;
-      });
-    } else {
+    if (!isSelectMode) {
       // 通常モードの場合は詳細編集ダイアログを開く
       setItemToEdit(item);
       setShowEditDialog(true);
@@ -247,10 +190,10 @@ export function ShoppingItemManageContent() {
   // 削除確認ダイアログ - 削除実行
   const confirmDelete = async () => {
     for (const _id of Array.from(selectedItemIds)) {
-      await removeItem(_id); // ストアのアクションを呼び出し
+      await removeItem(parseInt(_id)); // ストアのアクションを呼び出し
     } // 選択中のIDリストを渡して削除実行
     setShowConfirmDialog(false); // ダイアログを閉じる
-    exitDeleteMode(); // 削除モードを終了
+    exitSelectMode(); // 選択モードを終了
   };
 
   // 削除確認ダイアログ - キャンセル
@@ -329,7 +272,7 @@ export function ShoppingItemManageContent() {
         {/* このdivでリスト部分をスクロール可能に */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {data.map((item) => {
-            const isSelected = selectedItemIds.has(item.id);
+            const isSelected = selectedItemIds.has(`${item.id}`);
             return (
               <div
                 key={item.id}
@@ -358,7 +301,7 @@ export function ShoppingItemManageContent() {
                 onClick={() => handleCardClick(item)} // クリックイベント
               >
                 {/* 削除モード中のチェックマークオーバーレイ */}
-                {isDeleteMode && (
+                {isSelectMode && (
                   <div
                     className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center
                                     ${
@@ -419,7 +362,7 @@ export function ShoppingItemManageContent() {
           display={`${selectedItemIds.size}件選択中`}
           disableDeleteButton={selectedItemIds.size === 0}
           deleteButtonClick={handleDeleteButtonClick}
-          exitDeleteMode={exitDeleteMode} 
+          exitDeleteMode={exitSelectMode} 
         />
       )}
 
