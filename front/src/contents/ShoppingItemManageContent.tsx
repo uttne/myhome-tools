@@ -4,10 +4,11 @@ import useShoppingMasterStore, {
   ShoppingMasterItem,
 } from "../stores/ShoppingMasterStore"; // ストアから型とアクションをインポート
 import useControlBoxState from "../stores/ControlStore"; // ControlBoxをクリアするためにインポート
-import { Trash2 } from "lucide-react"; // 削除アイコン
 
 import data from "@emoji-mart/data"; // 絵文字データ
 import Picker from "@emoji-mart/react"; // Pickerコンポーネント
+import { DeleteButtonBox } from "../layouts/DeleteButtonBox";
+import { ConfirmDialog } from "../parts/ConfirmDialog";
 
 // 詳細編集ダイアログ用のコンポーネント（簡易版）
 interface EditDialogProps {
@@ -111,44 +112,6 @@ function EditDialog({ item, onSave, onClose }: EditDialogProps) {
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           >
             保存
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 削除確認ダイアログ用のコンポーネント（簡易版）
-interface ConfirmDialogProps {
-  count: number;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmDialog({ count, onConfirm, onCancel }: ConfirmDialogProps) {
-  return (
-    <div
-      className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex justify-center items-center z-50"
-      onClick={onCancel}
-    >
-      <div
-        className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full m-4 text-center"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-xl font-bold mb-4">削除の確認</h2>
-        <p className="mb-6">{count}件の商品を削除してもよろしいですか？</p>
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-          >
-            キャンセル
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            削除
           </button>
         </div>
       </div>
@@ -452,29 +415,12 @@ export function ShoppingItemManageContent() {
 
       {/* 削除ボタンバー (選択中のアイテムがある場合に表示) */}
       {selectedItemIds.size > 0 && (
-        <div className="fixed bottom-10 left-0 right-0 flex justify-center z-40 pointer-events-none">
-          {" "}
-          {/* ControlBoxより上に表示するためz-index調整, イベント透過 */}
-          <div className="bg-red-600 text-white py-3 px-6 rounded-full shadow-lg flex items-center space-x-4 pointer-events-auto">
-            {" "}
-            {/* ボタン自体はイベントを受け取る */}
-            <span>{selectedItemIds.size}件選択中</span>
-            <button
-              onClick={handleDeleteButtonClick}
-              className="flex items-center space-x-2 bg-red-700 hover:bg-red-800 px-4 py-1 rounded-full transition-colors"
-              disabled={selectedItemIds.size === 0}
-            >
-              <Trash2 size={18} />
-              <span>削除</span>
-            </button>
-            <button
-              onClick={exitDeleteMode}
-              className="flex items-center space-x-2 bg-red-700 hover:bg-red-800 px-4 py-1 rounded-full transition-colors"
-            >
-              <span>キャンセル</span>
-            </button>
-          </div>
-        </div>
+        <DeleteButtonBox
+          display={`${selectedItemIds.size}件選択中`}
+          disableDeleteButton={selectedItemIds.size === 0}
+          deleteButtonClick={handleDeleteButtonClick}
+          exitDeleteMode={exitDeleteMode} 
+        />
       )}
 
       {/* 詳細編集ダイアログ */}
@@ -489,10 +435,12 @@ export function ShoppingItemManageContent() {
       {/* 削除確認ダイアログ */}
       {showConfirmDialog && (
         <ConfirmDialog
-          count={selectedItemIds.size}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
-        />
+        >
+          <h2 className="text-xl font-bold mb-4">削除の確認</h2>
+          <p className="mb-6">{selectedItemIds.size}件の商品を削除してもよろしいですか？</p>
+        </ConfirmDialog>
       )}
     </div>
   );
