@@ -5,20 +5,21 @@ import { ShoppingMasterItem } from "./ShoppingMasterStore";
 export type ShoppingListItemStatus = "pending" | "archived";
 
 export interface ShoppingListItem {
-  id: number;                       // ユニーク ID
-  masterId: number;                 // ShoppingMasterItem.id
-  name: string;                     // 表示用（マスター名をコピー）
+  id: number; // ユニーク ID
+  masterId: number; // ShoppingMasterItem.id
+  name: string; // 表示用（マスター名をコピー）
   icon?: ShoppingMasterItem["icon"]; // 絵文字など
   quantity: number;
   addedAt: number;
   status: ShoppingListItemStatus;
-  archivedAt?: number;              // unixtime (ms)
+  archivedAt?: number; // unixtime (ms)
 }
 
 /* ───────── store ───────── */
 interface ShoppingListState {
   items: ShoppingListItem[];
   addItem: (master: ShoppingMasterItem, qty?: number) => void;
+  deleteItem: (id: number) => void;
   toggleArchived: (id: number) => void;
   clearArchived: () => void;
 }
@@ -44,6 +45,10 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
         ],
       };
     }),
+  deleteItem: (id) =>
+    set((state) => ({
+      items: state.items.filter((i) => i.id !== id),
+    })),
 
   toggleArchived: (id) =>
     set((state) => ({
@@ -52,8 +57,7 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
           ? {
               ...i,
               status: i.status === "pending" ? "archived" : "pending",
-              archivedAt:
-                i.status === "pending" ? Date.now() : undefined,
+              archivedAt: i.status === "pending" ? Date.now() : undefined,
             }
           : i
       ),

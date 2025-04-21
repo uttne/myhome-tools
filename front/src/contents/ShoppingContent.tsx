@@ -1,18 +1,29 @@
 import { useEffect, useState } from "react";
-import { PlusCircle, Check, RotateCcw, Archive } from "lucide-react";
+import { PlusCircle, Check, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import useControlBoxState from "../stores/ControlStore";
 import useShoppingMasterStore from "../stores/ShoppingMasterStore";
 import useShoppingListStore from "../stores/ShoppingListStore";
+import { useSelectedMode } from "../hooks/useSelectedMode";
+import { ConfirmDialog } from "../parts/ConfirmDialog";
+import { DeleteButtonBox } from "../layouts/DeleteButtonBox";
 
 /* 1行表示用のサブコンポーネント */
 function Row({
   item,
   onToggle,
+  onPressStart,
+  onPressEnd,
+  isSelectMode,
+  isSelected,
 }: {
   item: ReturnType<typeof useShoppingListStore.getState>["items"][number];
   onToggle: () => void;
+  onPressStart?: () => void;
+  onPressEnd?: () => void;
+  isSelectMode?: boolean;
+  isSelected?: boolean;
 }) {
   const fmt = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
@@ -23,9 +34,41 @@ function Row({
   });
   return (
     <div
-      className="flex items-center gap-2 p-3 border-b last:border-0 cursor-pointer hover:bg-gray-50"
+      className="flex items-center gap-2 p-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 select-none relative"
       onClick={onToggle}
+      onTouchStart={onPressStart}
+      onTouchEnd={onPressEnd}
+      onMouseDown={onPressStart}
+      onMouseUp={onPressEnd}
     >
+      {isSelectMode && (
+        <div
+          className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center
+                    ${
+                      isSelected
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-white border-gray-300"
+                    }`}
+        >
+          {isSelected && (
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+          )}
+        </div>
+      )}
+      {item.status === "pending" ? <></> : <Check className="text-green-600" />}
       <span className="text-2xl">{item.icon?.icon ?? "📝"}</span>
       <span className="flex-1">
         {item.name}
@@ -40,11 +83,6 @@ function Row({
           )}
         </div>
       </span>
-      {item.status === "pending" ? (
-        <Check className="text-green-600" />
-      ) : (
-        <RotateCcw className="text-gray-500" />
-      )}
     </div>
   );
 }
@@ -53,21 +91,35 @@ export function ShoppingContent() {
   const navigate = useNavigate();
   const { setButtons } = useControlBoxState();
 
+  const {
+    isSelectMode,
+    exitSelectMode,
+    selectClick,
+    selectPressEnd,
+    selectPressStart,
+    selectedItemIds,
+  } = useSelectedMode();
+
   /* master → list 追加用 */
   const { data: masters, isLoading: loadingMasters } = useShoppingMasterStore();
-  const { items, addItem, toggleArchived, clearArchived } =
+  const { items, addItem, deleteItem, toggleArchived, clearArchived } =
     useShoppingListStore();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // 削除確認ダイアログ表示状態
 
   /* ControlBox */
   useEffect(() => {
-    setButtons([
-      {
-        display: "商品リスト管理",
-        icon: <span>🍏📝</span>,
-        onClick: () => navigate("/shopping/manage"),
-      },
-    ]);
-  }, [setButtons, navigate]);
+    if (isSelectMode) {
+      setButtons([]);
+    } else {
+      setButtons([
+        {
+          display: "商品リスト管理",
+          icon: <span>🍏📝</span>,
+          onClick: () => navigate("/shopping/manage"),
+        },
+      ]);
+    }
+  }, [setButtons, navigate, isSelectMode]);
 
   /* 追加 UI の簡易実装（プルダウン） */
   const [selectedMasterId, setSelectedMasterId] = useState<number | "">("");
@@ -84,6 +136,36 @@ export function ShoppingContent() {
   const archived = items
     .filter((i) => i.status === "archived")
     .sort((a, b) => (b.archivedAt ?? 0) - (a.archivedAt ?? 0));
+
+  const onToggle = (id: number) => {
+    if (isSelectMode) {
+      selectClick(`${id}`);
+    } else {
+      toggleArchived(id);
+    }
+  };
+
+  // 削除確認ダイアログ - 削除実行
+  const confirmDelete = async () => {
+    for (const _id of Array.from(selectedItemIds)) {
+      await deleteItem(parseInt(_id)); // ストアのアクションを呼び出し
+    } // 選択中のIDリストを渡して削除実行
+    setShowConfirmDialog(false); // ダイアログを閉じる
+    exitSelectMode(); // 選択モードを終了
+  };
+
+  // 削除確認ダイアログ - キャンセル
+  const cancelDelete = () => {
+    setShowConfirmDialog(false); // ダイアログを閉じる
+    // 削除モードは終了しない（継続して他のアイテムを選択/解除できるように）
+  };
+
+  // 削除ボタン押下ハンドラ
+  const handleDeleteButtonClick = () => {
+    if (selectedItemIds.size > 0) {
+      setShowConfirmDialog(true); // 確認ダイアログを表示
+    }
+  };
 
   return (
     <div className="max-w-lg mx-auto py-6">
@@ -122,7 +204,15 @@ export function ShoppingContent() {
           <p className="text-gray-500 text-sm">まだありません。</p>
         )}
         {pending.map((i) => (
-          <Row key={i.id} item={i} onToggle={() => toggleArchived(i.id)} />
+          <Row
+            key={i.id}
+            item={i}
+            onToggle={() => onToggle(i.id)}
+            onPressStart={() => selectPressStart(`${i.id}`)}
+            onPressEnd={selectPressEnd}
+            isSelectMode={isSelectMode}
+            isSelected={selectedItemIds.has(`${i.id}`)}
+          />
         ))}
       </section>
 
@@ -144,9 +234,36 @@ export function ShoppingContent() {
           <p className="text-gray-500 text-sm">まだありません。</p>
         )}
         {archived.map((i) => (
-          <Row key={i.id} item={i} onToggle={() => toggleArchived(i.id)} />
+          <Row
+            key={i.id}
+            item={i}
+            onToggle={() => onToggle(i.id)}
+            onPressStart={() => selectPressStart(`${i.id}`)}
+            onPressEnd={selectPressEnd}
+            isSelectMode={isSelectMode}
+            isSelected={selectedItemIds.has(`${i.id}`)}
+          />
         ))}
       </section>
+
+      {/* 削除ボタンバー (選択中のアイテムがある場合に表示) */}
+      {selectedItemIds.size > 0 && (
+        <DeleteButtonBox
+          display={`${selectedItemIds.size}件選択中`}
+          disableDeleteButton={selectedItemIds.size === 0}
+          deleteButtonClick={handleDeleteButtonClick}
+          exitDeleteMode={exitSelectMode}
+        />
+      )}
+      {/* 削除確認ダイアログ */}
+      {showConfirmDialog && (
+        <ConfirmDialog onConfirm={confirmDelete} onCancel={cancelDelete}>
+          <h2 className="text-xl font-bold mb-4">削除の確認</h2>
+          <p className="mb-6">
+            {selectedItemIds.size}件の商品を削除してもよろしいですか？
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }
