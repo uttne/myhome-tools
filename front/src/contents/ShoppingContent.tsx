@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PlusCircle, Check, Archive } from "lucide-react";
+import { PlusCircle, Check, Archive, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import useControlBoxState from "../stores/ControlStore";
@@ -106,6 +106,10 @@ export function ShoppingContent() {
     useShoppingListStore();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false); // 削除確認ダイアログ表示状態
 
+  /* アコーディオン開閉状態 */
+  const [isPendingOpen, setPendingOpen] = useState(true); // "買うもの" はデフォルト開く
+  const [isArchivedOpen, setArchivedOpen] = useState(false); // "購入済み" はデフォルト閉じる
+
   /* ControlBox */
   useEffect(() => {
     if (isSelectMode) {
@@ -198,52 +202,83 @@ export function ShoppingContent() {
       </div>
 
       {/* ─── 未購入 ─── */}
-      <section className="mb-8">
-        <h2 className="font-semibold mb-2">🛒 買うもの</h2>
-        {pending.length === 0 && (
-          <p className="text-gray-500 text-sm">まだありません。</p>
-        )}
-        {pending.map((i) => (
-          <Row
-            key={i.id}
-            item={i}
-            onToggle={() => onToggle(i.id)}
-            onPressStart={() => selectPressStart(`${i.id}`)}
-            onPressEnd={selectPressEnd}
-            isSelectMode={isSelectMode}
-            isSelected={selectedItemIds.has(`${i.id}`)}
+      <section className="mb-4">
+        <button
+          className="w-full flex items-center justify-between py-2 font-semibold"
+          onClick={() => setPendingOpen((prev) => !prev)}
+        >
+          <span>🛒 買うもの</span>
+          <ChevronDown
+            className={`transition-transform ${
+              isPendingOpen ? "rotate-180" : "routate-0"
+            }`}
           />
-        ))}
+        </button>
+        {isPendingOpen && (
+          <div className="mt-2">
+            {pending.length === 0 && (
+              <p className="text-gray-500 text-sm">まだありません。</p>
+            )}
+            {pending.map((i) => (
+              <Row
+                key={i.id}
+                item={i}
+                onToggle={() => onToggle(i.id)}
+                onPressStart={() => selectPressStart(`${i.id}`)}
+                onPressEnd={selectPressEnd}
+                isSelectMode={isSelectMode}
+                isSelected={selectedItemIds.has(`${i.id}`)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ─── アーカイブ ─── */}
       <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">📦 購入済み</h2>
-          {archived.length > 0 && (
-            <button
-              onClick={clearArchived}
-              className="text-xs text-gray-500 flex items-center gap-1 hover:underline"
-            >
-              <Archive size={14} />
-              クリア
-            </button>
-          )}
-        </div>
-        {archived.length === 0 && (
-          <p className="text-gray-500 text-sm">まだありません。</p>
+        <button
+          className="w-full flex items-center justify-between py-2 font-semibold"
+          onClick={() => setArchivedOpen((prev) => !prev)}
+        >
+          <span>📦 購入済み</span>
+          <div className="flex items-center gap-2">
+            {archived.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearArchived();
+                }}
+                className="text-xs text-gray-500 flex items-center gap-1 hover:underline mr-2"
+              >
+                <Archive size={14} />
+                クリア
+              </button>
+            )}
+            <ChevronDown
+              className={`transition-transform ${
+                isArchivedOpen ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </div>
+        </button>
+        {isArchivedOpen && (
+          <div className="mt-2">
+            {archived.length === 0 && (
+              <p className="text-gray-500 text-sm">まだありません。</p>
+            )}
+            {archived.map((i) => (
+              <Row
+                key={i.id}
+                item={i}
+                onToggle={() => onToggle(i.id)}
+                onPressStart={() => selectPressStart(`${i.id}`)}
+                onPressEnd={selectPressEnd}
+                isSelectMode={isSelectMode}
+                isSelected={selectedItemIds.has(`${i.id}`)}
+              />
+            ))}
+          </div>
         )}
-        {archived.map((i) => (
-          <Row
-            key={i.id}
-            item={i}
-            onToggle={() => onToggle(i.id)}
-            onPressStart={() => selectPressStart(`${i.id}`)}
-            onPressEnd={selectPressEnd}
-            isSelectMode={isSelectMode}
-            isSelected={selectedItemIds.has(`${i.id}`)}
-          />
-        ))}
       </section>
 
       {/* 削除ボタンバー (選択中のアイテムがある場合に表示) */}
