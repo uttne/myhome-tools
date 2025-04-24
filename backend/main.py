@@ -8,6 +8,10 @@ app = FastAPI()
 async def get_root():
     return {"msg": "Hello World"}
 
+@app.get("/api/v1/me")
+async def get_me():
+    return {"msg": "自分の情報を取得する"}
+
 @app.get("/api/v1/tenants/{tenant_id}/shopping/items")
 async def get_shopping_items(tenant_id: str):
     return {"items": ["apple", "banana", "cherry"]}
