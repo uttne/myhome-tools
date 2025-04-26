@@ -37,6 +37,7 @@ Table ns.shopping_item_masters {
   icon_id varchar [ref: > ns.shopping_item_master_icons.id, null]
   created_at datetime
   updated_at datetime
+  archived_at datetime [null]
   namespace_id varchar [ref: > app.namespaces.id]
 }
 
