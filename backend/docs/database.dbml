@@ -1,0 +1,74 @@
+// *******************************************************************
+// app tables
+Table app.users{
+    id varchar [pk] // Primary key, auto-incrementing
+    name varchar [unique]
+    email varchar
+}
+
+Table app.namespaces{
+    id varchar [pk] // Primary key, auto-incrementing
+    name varchar
+    description varchar
+    created_at datetime
+    updated_at datetime
+    owner_id varchar [ref: > app.users.id]
+}
+
+enum app.namespace_user_roles{
+    read
+    write
+    admin
+}
+
+Table app.namespace_users{
+    id varchar [pk] // Primary key, auto-incrementing
+    namespace_id varchar [ref: > app.namespaces.id]
+    user_id varchar [ref: > app.users.id]
+    role app.namespace_user_roles
+}
+// *******************************************************************
+// ns tables
+Table ns.shopping_item_masters{
+    id varchar [pk] // Primary key, auto-incrementing
+    name varchar
+    description varchar
+    created_at datetime
+    updated_at datetime
+    namespace_id varchar [ref: > app.namespaces.id]
+}
+
+enum ns.shopping_item_master_icons_type{
+    emoji
+    image
+}
+
+Table ns.shopping_item_master_icons{
+    id varchar [pk] // Primary key, auto-incrementing
+    shopping_item_master_id varchar [ref: > ns.shopping_item_masters.id]
+    type ns.shopping_item_master_icons_type
+    icon varchar
+    created_at datetime
+    updated_at datetime
+    namespace_id varchar [ref: > app.namespaces.id]
+}
+
+Table ns.shopping_lists{
+    id varchar [pk] // Primary key, auto-incrementing
+    name varchar
+    description varchar
+    is_default boolean
+    created_at datetime
+    updated_at datetime
+    archived_at datetime 
+    namespace_id varchar [ref: > app.namespaces.id]
+}
+
+Table ns.shopping_list_items{
+    id varchar [pk] // Primary key, auto-incrementing
+    shopping_list_id varchar [ref: > ns.shopping_lists.id]
+    shopping_item_master_id varchar [ref: > ns.shopping_item_masters.id]
+    quantity int
+    created_at datetime
+    shopped_at datetime
+}
