@@ -1,13 +1,13 @@
 // *******************************************************************
 // app tables
 Table app.users {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   name varchar [unique]
   email varchar
 }
 
 Table app.namespaces {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   name varchar
   description varchar
   created_at datetime
@@ -22,7 +22,7 @@ enum app.namespace_user_roles {
 }
 
 Table app.namespace_users {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   namespace_id varchar [ref: > app.namespaces.id]
   user_id varchar [ref: > app.users.id]
   role app.namespace_user_roles
@@ -31,7 +31,7 @@ Table app.namespace_users {
 // *******************************************************************
 // ns tables
 Table ns.shopping_item_masters {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   name varchar
   description varchar
   created_at datetime
@@ -45,7 +45,7 @@ enum ns.shopping_item_master_icons_type {
 }
 
 Table ns.shopping_item_master_icons {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   shopping_item_master_id varchar [ref: > ns.shopping_item_masters.id]
   type ns.shopping_item_master_icons_type
   icon varchar
@@ -55,7 +55,7 @@ Table ns.shopping_item_master_icons {
 }
 
 Table ns.shopping_lists {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   name varchar
   description varchar
   is_default boolean
@@ -66,7 +66,7 @@ Table ns.shopping_lists {
 }
 
 Table ns.shopping_list_items {
-  id varchar [pk] // Primary key, auto-incrementing
+  id varchar [pk] // Primary key
   shopping_list_id varchar [ref: > ns.shopping_lists.id]
   shopping_item_master_id varchar [ref: > ns.shopping_item_masters.id]
   quantity int
