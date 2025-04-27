@@ -7,11 +7,14 @@ import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App.tsx";
 
 import "./amplifyConfig.ts";
+import { NotificationProvider } from "./parts/Notification.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Router>
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </Router>
   </StrictMode>
 );
