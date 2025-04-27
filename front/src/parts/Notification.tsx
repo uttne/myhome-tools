@@ -90,7 +90,15 @@ export const NotificationContainer = ({
   notes,
   onRemove,
 }: NotificationContainerProps) => (
-  <div className="fixed inset-x-0 top-4 mx-auto flex w-fit flex-col gap-2 z-50">
+  <div
+    className={
+      "fixed top-4 left-0 right-0" /* 画面幅いっぱい */ +
+      " px-4" /* 左右に 1rem の余白 */ +
+      " flex flex-col items-center gap-2" +
+      " z-50" +
+      " pointer-events-none" /* 通知の外側クリックを無効化したい場合 */
+    }
+  >
     <AnimatePresence initial={false}>
       {notes.map((n) => (
         <NotificationBar key={n.id} {...n} onClose={() => onRemove(n.id)} />
@@ -126,7 +134,13 @@ export const NotificationBar = ({
     transition={{ type: "spring", stiffness: 400, damping: 30 }}
     role="status"
     aria-live="polite"
-    className={`relative flex items-start gap-2 rounded-lg px-4 py-2 shadow-lg shadow-black/10 ${styles[variant]}`}
+    className={
+      "relative flex items-start gap-2 rounded-lg px-4 py-2" +
+      " w-full" /* コンテナ幅いっぱい (＝画面幅-余白) */ +
+      " max-w-screen-sm" /* ↑ 640px を上限にしたい場合。不要なら削除 */ +
+      " shadow-lg shadow-black/10" +
+      ` ${styles[variant]}`
+    }
   >
     <span className="flex-1">{message}</span>
 
@@ -134,7 +148,7 @@ export const NotificationBar = ({
       <button
         aria-label="Close notification"
         onClick={onClose}
-        className="ml-2 select-none text-xl leading-none opacity-80 transition hover:opacity-100"
+        className="h-full ml-2 select-none text-xl leading-none opacity-80 transition hover:opacity-100"
       >
         ×
       </button>
