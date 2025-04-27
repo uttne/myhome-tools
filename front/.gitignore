@@ -28,3 +28,5 @@ llm_input.txt
 
 
 .env
+
+___*.tsx
