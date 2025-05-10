@@ -1,11 +1,9 @@
 from fastapi import FastAPI, Request
 from mangum import Mangum
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from myhome_tools.db.engine import apply_sqlite_pragmas
 from pathlib import Path
 
 # テーブルの定義の読み込み
-from myhome_tools.db.engine import init_db
+from myhome_tools.db.engine import init_db, get_engine, get_async_session
 from fastapi.openapi.utils import get_openapi
 
 
@@ -19,25 +17,15 @@ DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_DATA_DIR.mkdir(parents=True, exist_ok=True)
 # ════════════════════════════════════════════════════════════════
 
-
-engine = create_async_engine("sqlite+aiosqlite:///:memory:")
-apply_sqlite_pragmas(engine)
-
-AsyncSessionLocal = async_sessionmaker[AsyncSession](
-    engine, 
-    # 生成されるセッションの型
-    class_=AsyncSession, 
-    # commit() 後に ORM インスタンスの属性を期限切れにしない設定
-    expire_on_commit=False)
-
 async def lifespan(app: FastAPI):
-    async with AsyncSessionLocal() as session:
+    async with get_async_session() as session:
         # startup
         # DB の初期化処理
         await init_db(session, DB_DIR / "app.db", "app")
         yield
-        # shutdown
-        await engine.dispose()
+    
+    # shutdown
+    await get_engine().dispose()
 
 
 # ════════════════════════════════════════════════════════════════

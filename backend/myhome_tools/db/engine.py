@@ -1,13 +1,15 @@
 from __future__ import annotations
-from typing import Any, Dict, AsyncIterator
+from functools import lru_cache
+from typing import Any, Dict, AsyncIterator, Annotated
 from sqlalchemy import event, Engine
 from contextlib import asynccontextmanager, contextmanager
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import Session
 from typing import Iterable
 from sqlalchemy import Table
 from sqlmodel import SQLModel
 from pathlib import Path
+from fastapi import Depends
 
 def apply_sqlite_pragmas(engine: Engine | Any) -> None:
     """
@@ -96,3 +98,59 @@ async def init_db(session:AsyncSession, db_path: Path, schema: str) -> None:
         
     
     print(f"Database initialized at {db_path}")
+
+# ════════════════════════════════════════════════════════════════
+# シングルトン
+# ════════════════════════════════════════════════════════════════
+
+
+DEFAULT_URL = "sqlite+aiosqlite:///:memory:"
+
+@lru_cache
+def get_engine(url: str = DEFAULT_URL) -> AsyncEngine:
+    """
+    URL ごとに 1 つだけ Engine を作る。
+    引数無し＝実質シングルトン、引数あり＝“プール分け”も可。
+    """
+    engine = create_async_engine(url, pool_pre_ping=True)
+
+    # 必ず実行する PRAGMA を登録する
+    apply_sqlite_pragmas(engine)
+
+    return engine
+
+@lru_cache
+def get_sessionmaker(url: str = DEFAULT_URL) -> async_sessionmaker[AsyncSession]:
+    """
+    URL ごとに 1 つだけ Session を作る。
+    引数無し＝実質シングルトン、引数あり＝“プール分け”も可。
+    """
+    return async_sessionmaker[AsyncSession](
+        get_engine(url), 
+        # 生成されるセッションの型
+        class_=AsyncSession, 
+        # commit() 後に ORM インスタンスの属性を期限切れにしない設定
+        expire_on_commit=False)
+
+
+@asynccontextmanager
+async def get_async_session(url: str | None = None) -> AsyncIterator[AsyncSession]:
+    AsyncSessionLocal = get_sessionmaker(url or DEFAULT_URL)
+    async with AsyncSessionLocal() as session:
+        yield session
+
+# ════════════════════════════════════════════════════════════════
+# FastAPI の依存性注入用
+DbSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
+"""
+# FastAPI で DB を使う用
+
+例
+```python
+@router.get("/items")
+async def list_items(db: DbSessionDep):
+    result = await db.execute(text("SELECT * FROM items"))
+    return result.fetchall()
+```
+
+"""
