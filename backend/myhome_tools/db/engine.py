@@ -3,9 +3,6 @@ from sqlalchemy import event, Engine
 from contextlib import asynccontextmanager, contextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-from pathlib import Path
-
-
 
 def apply_sqlite_pragmas(engine: Engine | Any) -> None:
     """
@@ -33,6 +30,9 @@ async def attach_dbs_async(
         session: AsyncSession,
         dbs: Dict[str, str]
 ) -> AsyncIterator[AsyncSession]:
+    """
+    SQLAlchemy のセッションに対して、SQLite の ATTACH DATABASE を実行するコンテキストマネージャ
+    """
     conn = await session.connection()
     try:
         for alias, path in dbs.items():
@@ -47,6 +47,9 @@ def attach_dbs(
         session: Session,
         dbs: Dict[str, str]
 ):
+    """
+    SQLAlchemy のセッションに対して、SQLite の ATTACH DATABASE を実行するコンテキストマネージャ
+    """
     conn = session.connection()
     try:
         for alias, path in dbs.items():
