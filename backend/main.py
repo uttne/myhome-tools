@@ -14,7 +14,6 @@ from sqlmodel import select
 from pathlib import Path
 
 # テーブルの定義の読み込み
-from myhome_tools.db import model # noqa: F401
 from myhome_tools.db.engine import attach_dbs_async
 from myhome_tools.db.init_database import init_db
 from fastapi.openapi.utils import get_openapi
