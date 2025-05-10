@@ -20,6 +20,9 @@ from myhome_tools.db.init_database import init_db
 from fastapi.openapi.utils import get_openapi
 
 
+from myhome_tools.api.v1 import root, me, shopping, ns
+
+
 DB_DIR = Path(".") / Path("db")
 DB_DATA_DIR = DB_DIR / "data"
 
@@ -89,79 +92,15 @@ def custom_openapi():
 app.openapi = custom_openapi
 # ════════════════════════════════════════════════════════════════
 
-@app.get("/api")
-async def get_root():
-    return {"msg": "Hello World"}
-
+app.include_router(root.router)
+app.include_router(me.router)
+app.include_router(ns.router)
+app.include_router(shopping.router)
 
 @app.post("/api/v1/init")
 async def post_init(request: Request):
     auth_header: str | None = request.headers.get("authorization")
     return {"token": auth_header}
-
-@app.get("/api/v1/me")
-async def get_me():
-
-    async with AsyncSessionLocal() as session:
-        async with attach_dbs_async(session, {"app": str(DB_DIR / "app.db").replace("\\", "/")}) as ses:
-            sql = "SELECT name FROM app.sqlite_master WHERE type = 'table';"
-            result = await ses.execute(text(sql))
-            return [row[0] for row in result]
-    #     stmt = select(User).where(User.id == 1)
-    #     result = await session.execute(stmt)
-    #     user = result.one_or_none()
-
-    #     return User.model_validate(user) if user else None
-    return {"msg": "自分の情報を取得する"}
-
-@app.get("/api/v1/tenants/{tenant_id}/shopping/items")
-async def get_shopping_items(tenant_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-class Item(BaseModel):
-    name: str
-
-@app.put("/api/v1/tenants/{tenant_id}/shopping/items")
-async def put_shopping_items(tenant_id: str, item: Item):
-    return {"items": ["apple", "banana", "cherry"]}
-
-
-@app.delete("/api/v1/tenants/{tenant_id}/shopping/items/{item_id}")
-async def delete_shopping_items(tenant_id: str, item_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-
-@app.get("/api/v1/tenants/{tenant_id}/shopping/list/items")
-async def get_shopping_list_items(tenant_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-
-@app.delete("/api/v1/tenants/{tenant_id}/shopping/list/items/{item_id}")
-async def delete_shopping_list_items(tenant_id: str, item_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-
-@app.post("/api/v1/tenants/{tenant_id}/shopping/list/items")
-async def delete_shopping_list_items(tenant_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-
-@app.get("/api/v1/tenants/{tenant_id}/shopping/images")
-async def get_shopping_images(tenant_id: str):
-    return {"items": [{"id":"", "name": "", "url": ""}]}
-
-@app.put("/api/v1/tenants/{tenant_id}/shopping/images")
-async def put_shopping_images(tenant_id: str):
-    return {"items": [{"id":"", "name": "", "url": ""}]}
-
-
-@app.delete("/api/v1/tenants/{tenant_id}/shopping/images/{image_id}")
-async def delete_shopping_images(tenant_id: str, image_id: str):
-    return {"items": ["apple", "banana", "cherry"]}
-
-@app.get("/api/v1/tenants/{tenant_id}/shopping/histories")
-async def get_shopping_histories(tenant_id: str, _from: str = Query(alias="from"), to: str = Query()):
-    return {"from": _from, "to": to}
 
 
 
