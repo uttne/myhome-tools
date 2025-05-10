@@ -2,6 +2,7 @@
 // app tables
 Table app.users {
   id varchar [pk] // Primary key
+  sub varchar [unique, not null, note: 'cognito sub']
   name varchar [unique]
   email varchar
 }
@@ -34,10 +35,10 @@ Table ns.shopping_item_masters {
   id varchar [pk] // Primary key
   name varchar
   description varchar
-  icon_id varchar [ref: > ns.shopping_item_master_icons.id, null]
+  icon_id varchar [ref: > ns.shopping_item_master_icons.id]
   created_at datetime
   updated_at datetime
-  archived_at datetime [null]
+  archived_at datetime
   namespace_id varchar [ref: > app.namespaces.id]
 }
 
@@ -50,7 +51,7 @@ Table ns.shopping_item_master_icons {
   id varchar [pk] // Primary key
   type ns.shopping_item_master_icons_type
   value varchar
-  asset_id varchar [ref: > ns.assets.id, null]
+  asset_id varchar [ref: > ns.assets.id]
   created_at datetime
   updated_at datetime
   namespace_id varchar [ref: > app.namespaces.id]
@@ -60,12 +61,11 @@ enum ns.asset_types {
   image
 }
 
-
 Table ns.assets {
   id varchar [pk] // Primary key
   name varchar
   extension varchar
-  size int [note: 'in bytes']
+  size int [note: 'in bytes', default: 0]
   type ns.asset_types
   description varchar
   created_at datetime
@@ -77,10 +77,10 @@ Table ns.shopping_lists {
   id varchar [pk] // Primary key
   name varchar
   description varchar
-  is_default boolean
+  is_default boolean [default: false]
   created_at datetime
   updated_at datetime
-  archived_at datetime [null]
+  archived_at datetime
   namespace_id varchar [ref: > app.namespaces.id]
 }
 
@@ -88,7 +88,7 @@ Table ns.shopping_list_items {
   id varchar [pk] // Primary key
   shopping_list_id varchar [ref: > ns.shopping_lists.id]
   shopping_item_master_id varchar [ref: > ns.shopping_item_masters.id]
-  quantity int
+  quantity int [default: 1]
   created_at datetime
-  shopped_at datetime [null]
+  shopped_at datetime
 }
