@@ -1,21 +1,11 @@
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Request
 from mangum import Mangum
-from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import sessionmaker
 from myhome_tools.db.engine import apply_sqlite_pragmas
-
-from sqlmodel import SQLModel, Field, Column, String, Integer
-from typing import Optional
-from datetime import datetime, timezone
-
-from sqlmodel import select
 from pathlib import Path
 
 # テーブルの定義の読み込み
-from myhome_tools.db.engine import attach_dbs_async
-from myhome_tools.db.init_database import init_db
+from myhome_tools.db.engine import init_db
 from fastapi.openapi.utils import get_openapi
 
 
