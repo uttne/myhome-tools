@@ -53,13 +53,17 @@ function addIgnoreFile(filePath: string, dirRel: string): void {
     .map((line) => {
       const neg = line.startsWith("!");
       let pat = neg ? line.slice(1) : line;
-      if (pat.startsWith("/")) pat = pat.slice(1); // ルート基準 → 削除
-      const prefixed = dirRel
-        ? path.posix.join(dirRel.replace(/\\/g, "/"), pat)
-        : pat;
+
+      const prefixed = (() => {
+        if (dirRel) {
+          if (pat.startsWith("/")) pat = pat.slice(1); // ルート基準 → 削除
+          return path.posix.join(dirRel.replace(/\\/g, "/"), pat);
+        } else {
+          return pat;
+        }
+      })();
       return (neg ? "!" : "") + prefixed;
     });
-
   ig.add(patterns);
 }
 
