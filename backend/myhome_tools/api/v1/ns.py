@@ -1,8 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from sqlmodel import select
 
 from myhome_tools.api.depends.type import DbSessionDep, SubDep
+from myhome_tools.db.engine import attach_dbs_async
+from myhome_tools.db.models.app import AppUser
+from myhome_tools.settings import get_settings
 
 router = APIRouter()
+settings = get_settings()
+
+A_APP = settings.db_alias_app
+DB_APP = settings.get_app_db_path()
 
 @router.get("/api/v1/ns")
 async def get_namespaces(
@@ -12,6 +20,16 @@ async def get_namespaces(
     """
     ユーザが所有する全ての Namespace を取得する
     """
+    async with db as session:
+        async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
+            stmt = select(AppUser).where(AppUser.sub == sub)
+            result = await ses.execute(stmt)
+            user = result.one_or_none()
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # db.execute("SELECT * FROM app.users WHERE sub = :sub", {"sub": sub})
     return {"msg": sub}
 
 @router.get("/api/v1/ns/{namespace_id}")

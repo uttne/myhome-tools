@@ -1,11 +1,9 @@
 """
 SQLModel 2.x で生成した “app” / “ns” スキーマのモデル定義
 """
-from __future__ import annotations
-
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy import Column, String, ForeignKey
 from sqlmodel import Field, Relationship, SQLModel
@@ -30,8 +28,8 @@ class AppUser(SQLModel, table=True):
     email: str = Field(sa_column=Column(String, nullable=True))
 
     # relations
-    namespaces: List["AppNamespace"] = Relationship(back_populates="owner")
-    member_of: List["AppNamespaceUser"] = Relationship(back_populates="user")
+    namespaces: list["AppNamespace"] = Relationship(back_populates="owner")
+    member_of: list["AppNamespaceUser"] = Relationship(back_populates="user")
 
 
 class AppNamespace(SQLModel, table=True):
@@ -48,8 +46,8 @@ class AppNamespace(SQLModel, table=True):
     )
 
     # relations
-    owner: Optional[AppUser] = Relationship(back_populates="namespaces")
-    members: List["AppNamespaceUser"] = Relationship(back_populates="namespace")
+    owner: Optional["AppUser"] = Relationship(back_populates="namespaces")
+    members: list["AppNamespaceUser"] = Relationship(back_populates="namespace")
 
 
 class NamespaceUserRole(str, Enum):

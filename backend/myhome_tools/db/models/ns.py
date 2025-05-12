@@ -1,11 +1,9 @@
 """
 SQLModel 2.x で生成した “app” / “ns” スキーマのモデル定義
 """
-from __future__ import annotations
-
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy import Column, String, Boolean, ForeignKey, Integer
 from sqlmodel import Field, Relationship, SQLModel
@@ -97,7 +95,7 @@ class NsShoppingList(SQLModel, table=True):
     )
 
     # items relation
-    items: List["NsShoppingListItem"] = Relationship(back_populates="shopping_list")
+    items: list["NsShoppingListItem"] = Relationship(back_populates="shopping_list")
 
 
 class NsShoppingListItem(SQLModel, table=True):
