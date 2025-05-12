@@ -6,22 +6,25 @@ from pathlib import Path
 from myhome_tools.db.engine import init_db, get_engine, get_async_session
 from fastapi.openapi.utils import get_openapi
 
-
+from myhome_tools.settings import get_settings
 from myhome_tools.api.v1 import root, me, shopping, ns
 
 
-DB_DIR = Path(".") / Path("db")
-DB_DATA_DIR = DB_DIR / "data"
+settings = get_settings()
+
+DB_DIR = settings.db_dir
+DB_DATA_DIR_NS = settings.get_ns_db_data_dir()
 
 DB_DIR.mkdir(parents=True, exist_ok=True)
-DB_DATA_DIR.mkdir(parents=True, exist_ok=True)
+DB_DATA_DIR_NS.mkdir(parents=True, exist_ok=True)
 # ════════════════════════════════════════════════════════════════
 
 async def lifespan(app: FastAPI):
     async with get_async_session() as session:
         # startup
         # DB の初期化処理
-        await init_db(session, DB_DIR / "app.db", "app")
+        app_db_path = settings.get_app_db_path()
+        await init_db(session, app_db_path, settings.db_alias_app)
         yield
     
     # shutdown
