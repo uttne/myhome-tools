@@ -1,3 +1,4 @@
+from pathlib import Path
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine
@@ -32,6 +33,11 @@ target_metadata = SQLModel.metadata
 
 opts = context.get_x_argument(as_dictionary=True)
 db_path = opts.get("db_path", "db/app.db")
+
+p = Path(db_path)
+if not p.parent.exists():
+    p.parent.mkdir(parents=True, exist_ok=True)
+
 DUMMY_DATABASE_URL = "sqlite:///:memory:"
 
 def run_migrations_offline() -> None:
