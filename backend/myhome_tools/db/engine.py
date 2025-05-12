@@ -1,6 +1,6 @@
 from __future__ import annotations
 from functools import lru_cache
-from typing import Any, Dict, AsyncIterator, Annotated
+from typing import Any, Dict, AsyncIterator
 from sqlalchemy import event, Engine
 from contextlib import asynccontextmanager, contextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession, async_sessionmaker
@@ -9,7 +9,6 @@ from typing import Iterable
 from sqlalchemy import Table
 from sqlmodel import SQLModel
 from pathlib import Path
-from fastapi import Depends
 
 def apply_sqlite_pragmas(engine: Engine | Any) -> None:
     """
@@ -139,18 +138,3 @@ async def get_async_session(url: str | None = None) -> AsyncIterator[AsyncSessio
     async with AsyncSessionLocal() as session:
         yield session
 
-# ════════════════════════════════════════════════════════════════
-# FastAPI の依存性注入用
-DbSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
-"""
-# FastAPI で DB を使う用
-
-例
-```python
-@router.get("/items")
-async def list_items(db: DbSessionDep):
-    result = await db.execute(text("SELECT * FROM items"))
-    return result.fetchall()
-```
-
-"""

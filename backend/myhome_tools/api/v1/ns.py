@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from myhome_tools.api.depends.jwt import get_sub_from_verified_token
+from myhome_tools.api.depends.type import DbSessionDep, SubDep
 
 router = APIRouter()
 
 @router.get("/api/v1/ns")
-async def get_namespaces(sub: str = Depends(get_sub_from_verified_token)):
+async def get_namespaces(
+    sub: SubDep,
+    db: DbSessionDep,
+    ):
+    """
+    ユーザが所有する全ての Namespace を取得する
+    """
     return {"msg": sub}
 
 @router.get("/api/v1/ns/{namespace_id}")
