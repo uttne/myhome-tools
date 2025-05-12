@@ -35,7 +35,7 @@ def _make_detach_sql(alias: str) -> str:
 @asynccontextmanager
 async def attach_dbs_async(
         session: AsyncSession,
-        dbs: Dict[str, str]
+        dbs: Dict[str, Path]
 ) -> AsyncIterator[AsyncSession]:
     """
     SQLAlchemy のセッションに対して、SQLite の ATTACH DATABASE を実行するコンテキストマネージャ
@@ -43,7 +43,7 @@ async def attach_dbs_async(
     conn = await session.connection()
     try:
         for alias, path in dbs.items():
-            await conn.exec_driver_sql(_make_attach_sql(path, alias))
+            await conn.exec_driver_sql(_make_attach_sql(str(path).replace("\\", "/"), alias))
         yield session
     finally:
         for alias in dbs.keys():
@@ -52,7 +52,7 @@ async def attach_dbs_async(
 @contextmanager
 def attach_dbs(
         session: Session,
-        dbs: Dict[str, str]
+        dbs: Dict[str, Path]
 ):
     """
     SQLAlchemy のセッションに対して、SQLite の ATTACH DATABASE を実行するコンテキストマネージャ
@@ -60,7 +60,7 @@ def attach_dbs(
     conn = session.connection()
     try:
         for alias, path in dbs.items():
-            conn.exec_driver_sql(_make_attach_sql(path, alias))
+            conn.exec_driver_sql(_make_attach_sql(str(path).replace("\\", "/"), alias))
         yield session
     finally:
         for alias in dbs.keys():
