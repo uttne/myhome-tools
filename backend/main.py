@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
 from mangum import Mangum
-from pathlib import Path
 
 # テーブルの定義の読み込み
 from myhome_tools.db.engine import init_db, get_engine, get_async_session
