@@ -39,12 +39,15 @@ async def attach_dbs_async(
     """
     SQLAlchemy のセッションに対して、SQLite の ATTACH DATABASE を実行するコンテキストマネージャ
     """
-    conn = await session.connection()
     try:
+        conn = await session.connection()
         for alias, path in dbs.items():
             await conn.exec_driver_sql(_make_attach_sql(str(path).replace("\\", "/"), alias))
+
         yield session
     finally:
+        # conn をそのまま使うとエラーになってしまうので、再取得する
+        conn = await session.connection()
         for alias in dbs.keys():
             await conn.exec_driver_sql(_make_detach_sql(alias))
 
