@@ -1,18 +1,61 @@
 from fastapi import APIRouter
 
+from myhome_tools.api.depends.type import DbSessionDep, SubDep
+from myhome_tools.api.exceptions.conflict import NotInitializedError
+from myhome_tools.db.engine import attach_dbs_async
+from myhome_tools.db.models.app import AppUser
+from myhome_tools.settings import get_settings
+from myhome_tools.api.utils.me import get_me as _get_me
+from myhome_tools.db.engine import init_db
+from uuid import uuid4
+
 router = APIRouter()
 
+settings = get_settings()
+
+A_APP = settings.db_alias_app
+DB_APP = settings.get_app_db_path()
+
 @router.get("/api/v1/me")
-async def get_me():
+async def get_me(
+    sub: SubDep,
+    db: DbSessionDep,
+):
+    async with db as session:
+        user = await _get_me(session, sub, settings)
+        return user
 
-    # async with AsyncSessionLocal() as session:
-    #     async with attach_dbs_async(session, {"app": str(DB_DIR / "app.db").replace("\\", "/")}) as ses:
-    #         sql = "SELECT name FROM app.sqlite_master WHERE type = 'table';"
-    #         result = await ses.execute(text(sql))
-    #         return [row[0] for row in result]
-    #     stmt = select(User).where(User.id == 1)
-    #     result = await session.execute(stmt)
-    #     user = result.one_or_none()
+@router.post("/api/v1/me/init")
+async def init_me(
+    sub: SubDep,
+    db: DbSessionDep,
+):
+    """
+    ユーザの初期化処理
+    例えば、初回アクセス時にユーザ情報を作成するなど
+    """
+    async with db as session:
+        try:
+            await _get_me(session, sub, settings)
+            return {"msg": "ユーザは既に初期化されています"}
+        except NotInitializedError:
+            # ユーザが初期化されていないので初期化処理に入るため pass する
+            print("ユーザーが存在しないため、初期化処理を実行します")
+            pass
+        
+    
+        async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
+            ses.add(
+                AppUser(
+                    id=str(uuid4()),
+                    sub=sub,
+                    name="初期ユーザ",
+                    email=""
+                )
+            )
+            await ses.commit()
+    
 
-    #     return User.model_validate(user) if user else None
-    return {"msg": "自分の情報を取得する"}
+    # ここにユーザの初期化処理を実装
+    return {"msg": "ユーザの初期化処理を実行しました"}
+
