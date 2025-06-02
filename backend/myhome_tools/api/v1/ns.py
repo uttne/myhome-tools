@@ -37,8 +37,44 @@ async def get_namespace():
     return {"msg": "Hello World"}
 
 @router.post("/api/v1/ns")
-async def create_namespace():
-    return {"msg": "Hello World"}
+async def create_namespace(
+    db: DbSessionDep,
+    sub: SubDep,
+    name: str,
+    description: str = None,
+):
+    
+    async with db as session:
+        user = await get_me(session, sub, settings)  # ユーザ情報を取得しておく
+
+        async with attach_dbs_async(session, {
+                A_APP: DB_APP,
+            }) as ses:
+            
+            namespace = AppNamespace(
+                id=str(uuid4()),
+                name=name,
+                description=description,
+                created_at=dt.datetime.now(dt.timezone.utc),
+                updated_at=dt.datetime.now(dt.timezone.utc),
+                owner_id=user.id,
+            )
+            ses.add(namespace)
+
+            ns_user = AppNamespaceUser(
+                id=str(uuid4()),
+                namespace_id=namespace.id,
+                user_id=user.id,
+                role=NamespaceUserRole.admin,  # 初期ユーザは admin とする
+            )
+
+            ses.add(ns_user)
+
+            await ses.commit()
+        
+        await init_db(session, settings.get_ns_db_path(namespace.id), settings.db_alias_ns)
+
+    return namespace
 
 @router.post("/api/v1/ns/{namespace_id}/users")
 async def add_user():
