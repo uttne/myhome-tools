@@ -19,6 +19,12 @@ export function RequireAuthArea(){
       }
       catch(err){
         console.error("API Client init failed:", err);
+        
+        // 失敗した場合は繰り返す
+        setTimeout(async () =>{
+          await checkAuth();
+        },1000);
+
         return false;
       }
       
@@ -29,15 +35,6 @@ export function RequireAuthArea(){
     };
 
     checkAuth();
-
-    const timer = setInterval(async () =>{
-      const res = await checkAuth();
-      if (res) {
-        clearInterval(timer);
-      }
-    },1000);
-
-    return () => clearInterval(timer);
   },[]);
 
   if (loading){
