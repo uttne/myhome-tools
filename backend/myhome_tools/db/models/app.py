@@ -24,8 +24,8 @@ class AppUser(SQLModel, table=True):
 
     id: ID = Field(sa_column=Column(String, primary_key=True))
     sub: str = Field(sa_column=Column(String, unique=True, nullable=False))
-    name: str = Field(sa_column=Column(String, unique=True))
-    email: str = Field(sa_column=Column(String, nullable=True))
+    name: str = Field(sa_column=Column(String, unique=False, nullable=True))
+    email: str = Field(sa_column=Column(String, unique=False, nullable=True))
 
     # relations
     namespaces: list["AppNamespace"] = Relationship(back_populates="owner")
