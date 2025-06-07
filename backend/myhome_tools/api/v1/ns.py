@@ -83,13 +83,22 @@ async def get_namespace(namespace_id: str, db: DbSessionDep, sub: SubDep):
     
     return ApiResNamespace.model_validate({**ns.model_dump(),**ns_usr.model_dump()})
 
+class CreateNamespaceRequest(BaseModel):
+    """
+    Namespace を作成するためのリクエストボディ
+    - name: Namespace の名前
+    - description: Namespace の説明 (任意)
+    """
+    name: str
+    description: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 @router.post("/api/v1/ns")
 async def create_namespace(
     db: DbSessionDep,
     sub: SubDep,
-    name: str,
-    description: str = None,
+    request_in: CreateNamespaceRequest,
 ):
     
     async with db as session:
@@ -101,8 +110,8 @@ async def create_namespace(
             
             namespace = AppNamespace(
                 id=create_id(),
-                name=name,
-                description=description,
+                name=request_in.name,
+                description=request_in.description,
                 created_at=dt.datetime.now(dt.timezone.utc),
                 updated_at=dt.datetime.now(dt.timezone.utc),
                 owner_id=user.id,
