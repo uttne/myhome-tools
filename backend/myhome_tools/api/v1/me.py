@@ -49,7 +49,7 @@ async def init_me(
                 AppUser(
                     id=create_id(),
                     sub=sub,
-                    name="初期ユーザ",
+                    name="",
                     email=""
                 )
             )
