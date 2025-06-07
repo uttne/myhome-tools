@@ -1,10 +1,15 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException
-from sqlmodel import select
+from pydantic import BaseModel, ConfigDict
+from sqlmodel import or_, and_, select
+from uuid import uuid4
 
 from myhome_tools.api.depends.type import DbSessionDep, SubDep
-from myhome_tools.db.engine import attach_dbs_async
-from myhome_tools.db.models.app import AppUser
+from myhome_tools.api.utils.me import get_me
+from myhome_tools.db.engine import attach_dbs_async, init_db
+from myhome_tools.db.models.app import AppNamespace, AppNamespaceUser, AppUser, NamespaceUserRole
 from myhome_tools.settings import get_settings
+import datetime as dt
 
 router = APIRouter()
 settings = get_settings()
@@ -12,7 +17,18 @@ settings = get_settings()
 A_APP = settings.db_alias_app
 DB_APP = settings.get_app_db_path()
 
-@router.get("/api/v1/ns")
+class ApiResNamespace(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    created_at: dt.datetime
+    updated_at: dt.datetime
+    owner_id: str
+    role: NamespaceUserRole
+
+    model_config = ConfigDict(from_attributes=True)
+
+@router.get("/api/v1/ns", response_model=list[ApiResNamespace])
 async def get_namespaces(
     sub: SubDep,
     db: DbSessionDep,
@@ -21,20 +37,52 @@ async def get_namespaces(
     ユーザが所有する全ての Namespace を取得する
     """
     async with db as session:
-        async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
-            stmt = select(AppUser).where(AppUser.sub == sub)
-            result = await ses.execute(stmt)
-            user = result.one_or_none()
-    
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        user = await get_me(session, sub, settings)
 
-    # db.execute("SELECT * FROM app.users WHERE sub = :sub", {"sub": sub})
-    return {"msg": sub}
+        async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
+            stmt = (
+                select(AppNamespaceUser, AppNamespace)
+                .join(AppNamespace, AppNamespaceUser.namespace_id == AppNamespace.id)
+                .where(
+                    AppNamespaceUser.user_id == user.id,
+                )
+                .order_by(AppNamespace.created_at)
+            )
+            
+            result = await ses.exec(stmt)
+            app_namespaces = result.all()
+    
+    return [ApiResNamespace.model_validate({**ns_usr.model_dump(),**ns.model_dump()}) for ns_usr, ns in app_namespaces]
 
 @router.get("/api/v1/ns/{namespace_id}")
-async def get_namespace():
-    return {"msg": "Hello World"}
+async def get_namespace(namespace_id: str, db: DbSessionDep, sub: SubDep):
+    """
+    指定された Namespace の情報を取得する"""
+    
+    async with db as session:
+        user = await get_me(session, sub, settings)
+
+        async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
+            stmt = (
+                select(AppNamespaceUser, AppNamespace)
+                .join(AppNamespace, AppNamespaceUser.namespace_id == AppNamespace.id)
+                .where(
+                    and_(AppNamespaceUser.user_id == user.id, AppNamespace.id == namespace_id),
+                )
+                .order_by(AppNamespace.created_at)
+            )
+            
+            result = await ses.exec(stmt)
+            item = result.first()
+            print(item)
+        
+    if item is None:
+        raise HTTPException(status_code=404, detail="Namespace not found or you do not have access to it")
+    
+    ns_usr, ns = item
+    
+    return ApiResNamespace.model_validate({**ns.model_dump(),**ns_usr.model_dump()})
+
 
 @router.post("/api/v1/ns")
 async def create_namespace(
