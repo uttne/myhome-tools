@@ -2,9 +2,9 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlmodel import or_, and_, select
-from uuid import uuid4
 
 from myhome_tools.api.depends.type import DbSessionDep, SubDep
+from myhome_tools.api.utils.funcs import create_id
 from myhome_tools.api.utils.me import get_me
 from myhome_tools.db.engine import attach_dbs_async, init_db
 from myhome_tools.db.models.app import AppNamespace, AppNamespaceUser, AppUser, NamespaceUserRole
@@ -100,7 +100,7 @@ async def create_namespace(
             }) as ses:
             
             namespace = AppNamespace(
-                id=str(uuid4()),
+                id=create_id(),
                 name=name,
                 description=description,
                 created_at=dt.datetime.now(dt.timezone.utc),
@@ -110,7 +110,7 @@ async def create_namespace(
             ses.add(namespace)
 
             ns_user = AppNamespaceUser(
-                id=str(uuid4()),
+                id=create_id(),
                 namespace_id=namespace.id,
                 user_id=user.id,
                 role=NamespaceUserRole.admin,  # 初期ユーザは admin とする

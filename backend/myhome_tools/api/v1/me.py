@@ -2,12 +2,12 @@ from fastapi import APIRouter
 
 from myhome_tools.api.depends.type import DbSessionDep, SubDep
 from myhome_tools.api.exceptions.conflict import NotInitializedError
+from myhome_tools.api.utils.funcs import create_id
 from myhome_tools.db.engine import attach_dbs_async
 from myhome_tools.db.models.app import AppUser
 from myhome_tools.settings import get_settings
 from myhome_tools.api.utils.me import get_me as _get_me
 from myhome_tools.db.engine import init_db
-from uuid import uuid4
 
 router = APIRouter()
 
@@ -47,7 +47,7 @@ async def init_me(
         async with attach_dbs_async(session, {A_APP: DB_APP}) as ses:
             ses.add(
                 AppUser(
-                    id=str(uuid4()),
+                    id=create_id(),
                     sub=sub,
                     name="初期ユーザ",
                     email=""
