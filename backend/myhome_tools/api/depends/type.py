@@ -1,6 +1,6 @@
 from typing import Annotated, AsyncIterator
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel.ext.asyncio.session import AsyncSession
 from contextlib import asynccontextmanager
 
 from myhome_tools.api.depends.jwt import get_sub_from_verified_token

@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel.ext.asyncio.session import AsyncSession
 from myhome_tools.api.exceptions.conflict import NotInitializedError
 from myhome_tools.db.engine import attach_dbs_async
 from myhome_tools.settings import Settings

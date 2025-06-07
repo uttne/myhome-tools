@@ -3,7 +3,8 @@ from functools import lru_cache
 from typing import Any, Dict, AsyncIterator
 from sqlalchemy import event, Engine
 from contextlib import asynccontextmanager, contextmanager
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import Session
 from typing import Iterable
 from sqlalchemy import Table
