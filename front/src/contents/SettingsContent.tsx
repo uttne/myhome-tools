@@ -26,6 +26,44 @@ const LoaddingIcon = () => (
   </svg>
 );
 
+function NamespaceSettingContent() {
+  const [newItemName, setNewItemName] = useState(""); // 新しい商品名の状態
+  const handleAddItem = () => {
+    if (newItemName.trim()) {
+      // 入力が空でない場合のみ追加
+      setNewItemName(""); // 入力フィールドをクリア
+    }
+  };
+
+  return (
+    <div>
+      <div className="mt-4 mb-6 flex gap-2">
+        <input
+          type="text"
+          placeholder="新しい名前空間の名前を入力"
+          value={newItemName}
+          onChange={(e) => setNewItemName(e.target.value)}
+          onKeyUp={(e) => {
+            // Enter キーで追加
+            if (e.key === "Enter") {
+              handleAddItem();
+            }
+          }}
+          className="flex-grow px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+        />
+        <button
+          onClick={handleAddItem}
+          disabled={!newItemName.trim()} // 入力がない場合は無効化
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          追加
+        </button>
+      </div>
+      {/* TODO : ここに名前空間のリストを表示するコンポーネントを追加 */}
+    </div>
+  );
+}
+
 export function SettingsContent() {
   const { setButtons } = useControlBoxState();
   const navigate = useNavigate();
@@ -99,6 +137,15 @@ export function SettingsContent() {
         {/* 例: パスワード変更ボタンなど *}
       </div>
       */}
+
+      <div className="mt-8 border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-medium text-gray-900">名前空間の設定</h2>
+        <p className="mt-1 text-sm text-gray-500">
+          名前空間の追加、削除を行います
+        </p>
+
+        <NamespaceSettingContent />
+      </div>
     </div>
   );
 }
