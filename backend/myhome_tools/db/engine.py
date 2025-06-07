@@ -1,5 +1,4 @@
 from __future__ import annotations
-from functools import lru_cache
 from typing import Any, Dict, AsyncIterator
 from sqlalchemy import event, Engine
 from contextlib import asynccontextmanager, contextmanager
@@ -20,6 +19,7 @@ def apply_sqlite_pragmas(engine: Engine | Any) -> None:
 
     # SQLite の場合のみ PRAGMA を実行する
     if target.dialect.name == "sqlite":
+        # コネクションが新規に作成されたタイミングで実行されるようにリスナーを登録
         @event.listens_for(target, "connect")
         def _set_pragmas(dbapi_conn, _):
             cur = dbapi_conn.cursor()
@@ -44,7 +44,7 @@ async def attach_dbs_async(
         conn = await session.connection()
         for alias, path in dbs.items():
             await conn.exec_driver_sql(_make_attach_sql(str(path).replace("\\", "/"), alias))
-
+        session.exec
         yield session
     finally:
         # conn をそのまま使うとエラーになってしまうので、再取得する
@@ -102,14 +102,8 @@ async def init_db(session:AsyncSession, db_path: Path, schema: str) -> None:
     
     print(f"Database initialized at {db_path}")
 
-# ════════════════════════════════════════════════════════════════
-# シングルトン
-# ════════════════════════════════════════════════════════════════
-
-
 DEFAULT_URL = "sqlite+aiosqlite:///:memory:"
 
-@lru_cache
 def get_engine(url: str = DEFAULT_URL) -> AsyncEngine:
     """
     URL ごとに 1 つだけ Engine を作る。
@@ -122,7 +116,6 @@ def get_engine(url: str = DEFAULT_URL) -> AsyncEngine:
 
     return engine
 
-@lru_cache
 def get_sessionmaker(url: str = DEFAULT_URL) -> async_sessionmaker[AsyncSession]:
     """
     URL ごとに 1 つだけ Session を作る。
