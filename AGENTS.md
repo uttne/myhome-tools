@@ -44,13 +44,45 @@
 | フロントエンド | React + Vite | `frontend/` |
 | フロントエンド依存管理 | `pnpm` | コンテナ内で実行 |
 | Lint | Ruff | バックエンド |
+| コマンド実行補助 | `task` | よく使うコマンドを `Taskfile.yml` に集約 |
+
+## Taskfile
+
+よく使うコマンドは `Taskfile.yml` に集約しています。
+
+まず一覧を確認します。
+
+```bash
+task --list
+```
+
+よく使うタスク:
+
+- `task up`: Docker Compose 開発環境を起動
+- `task up:detached`: Docker Compose 開発環境をバックグラウンド起動
+- `task down`: Docker Compose 開発環境を停止
+- `task ps`: サービス状態を表示
+- `task logs`: Compose ログを follow
+- `task check`: `docker compose config`、NGINX 設定確認、backend lint、frontend build を実行
+- `task backend:lint`: backend の Ruff
+- `task frontend:build`: frontend build
+- `task db:up`: DB だけ起動
+- `task db:migrate`: Alembic migration
+- `task admin:create`: 初期管理者作成
+- `task nginx:reload`: NGINX 設定 reload
+
+初期管理者の email/password を変える場合:
+
+```bash
+task admin:create ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=password
+```
 
 ## 開発環境の起動
 
 標準の起動方法:
 
 ```bash
-docker compose up --build
+task up
 ```
 
 ブラウザで開く URL:
@@ -202,43 +234,43 @@ docker compose exec backend sh -c "ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=
 Compose 設定確認:
 
 ```bash
-docker compose config
+task config
 ```
 
 サービス状態:
 
 ```bash
-docker compose ps
+task ps
 ```
 
 NGINX 設定確認:
 
 ```bash
-docker compose exec nginx nginx -t
+task nginx:test
 ```
 
 バックエンド lint:
 
 ```bash
-docker compose run --rm --no-deps backend uv run ruff check .
+task backend:lint
 ```
 
 フロントエンド build:
 
 ```bash
-docker compose run --rm --no-deps frontend pnpm build
+task frontend:build
 ```
 
 バックエンド依存同期:
 
 ```bash
-docker compose exec backend uv sync
+task backend:sync
 ```
 
 DB マイグレーション:
 
 ```bash
-docker compose exec backend uv run alembic upgrade head
+task db:migrate
 ```
 
 疎通確認:

@@ -1,0 +1,125 @@
+version: "3"
+
+vars:
+  ADMIN_EMAIL: '{{default "admin@example.com" .ADMIN_EMAIL}}'
+  ADMIN_PASSWORD: '{{default "password" .ADMIN_PASSWORD}}'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  up:
+    desc: Start the Docker Compose development environment
+    cmds:
+      - docker compose up --build
+
+  up:detached:
+    desc: Start the Docker Compose development environment in the background
+    cmds:
+      - docker compose up -d --build
+
+  down:
+    desc: Stop the Docker Compose development environment
+    cmds:
+      - docker compose down
+
+  ps:
+    desc: Show Docker Compose service status
+    cmds:
+      - docker compose ps
+
+  logs:
+    desc: Follow Docker Compose logs
+    cmds:
+      - docker compose logs -f
+
+  config:
+    desc: Validate and print the Docker Compose configuration
+    cmds:
+      - docker compose config
+
+  db:up:
+    desc: Start only the development PostgreSQL service
+    cmds:
+      - docker compose up -d db
+
+  db:migrate:
+    desc: Apply Alembic migrations in the backend container
+    cmds:
+      - docker compose exec backend uv run alembic upgrade head
+
+  admin:create:
+    desc: Create the initial admin user in the backend container
+    cmds:
+      - docker compose exec backend sh -c "ADMIN_EMAIL={{.ADMIN_EMAIL}} ADMIN_PASSWORD={{.ADMIN_PASSWORD}} uv run python -m app.create_admin"
+
+  nginx:reload:
+    desc: Reload the development NGINX configuration
+    cmds:
+      - docker compose exec nginx nginx -s reload
+
+  nginx:test:
+    desc: Validate the development NGINX configuration
+    cmds:
+      - docker compose exec nginx nginx -t
+
+  backend:lint:
+    desc: Run Ruff checks in the backend container
+    cmds:
+      - docker compose run --rm --no-deps backend uv run ruff check .
+
+  backend:sync:
+    desc: Sync backend dependencies in the backend container
+    cmds:
+      - docker compose exec backend uv sync
+
+  frontend:build:
+    desc: Build the frontend in the frontend container
+    cmds:
+      - docker compose run --rm --no-deps frontend pnpm build
+
+  check:
+    desc: Run the standard validation checks
+    cmds:
+      - task: config
+      - task: nginx:test
+      - task: backend:lint
+      - task: frontend:build
+
+  local:backend:sync:
+    desc: Sync backend dependencies on the host
+    dir: backend
+    cmds:
+      - uv sync
+
+  local:backend:migrate:
+    desc: Apply Alembic migrations from the host
+    dir: backend
+    cmds:
+      - uv run alembic upgrade head
+
+  local:backend:dev:
+    desc: Start the backend development server on the host
+    dir: backend
+    cmds:
+      - uv run uvicorn app.main:app --host 0.0.0.0 --reload
+
+  local:frontend:install:
+    desc: Install frontend dependencies on the host
+    dir: frontend
+    cmds:
+      - pnpm install
+
+  local:frontend:dev:
+    desc: Start the frontend development server on the host
+    dir: frontend
+    cmds:
+      - pnpm dev
+
+  local:frontend:build:
+    desc: Build the frontend on the host
+    dir: frontend
+    cmds:
+      - pnpm build
