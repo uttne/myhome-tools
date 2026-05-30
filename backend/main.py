@@ -22,8 +22,8 @@ async def lifespan(app: FastAPI):
     async with get_async_session() as session:
         # startup
         # DB の初期化処理
-        app_db_path = settings.get_app_db_path()
-        await init_db(session, app_db_path, settings.db_alias_app)
+        # app_db_path = settings.get_app_db_path()
+        # await init_db(session, app_db_path, settings.db_alias_app)
         yield
     
     # shutdown

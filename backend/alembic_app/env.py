@@ -9,6 +9,13 @@ from alembic import context
 import myhome_tools.db.models.app # noqa: F401
 from sqlmodel import SQLModel
 
+def debug_print(msg: str = "") -> None:
+    import os
+    filename = "./969f57f0-c13f-4832-994f-7087315cd956.log"
+    with open(filename, "a") as f:
+        f.write(f"DEBUG: {msg} : {os.getpid()} - {Path(__file__).name} - {context.is_offline_mode()}\n")
+
+debug_print("root")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -52,6 +59,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
+    debug_print("offline mode")
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -74,8 +82,9 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    debug_print("online mode")
     engine = create_engine(
-        DUMMY_DATABASE_URL
+        DUMMY_DATABASE_URL,echo=True
     )
     connectable = engine
 

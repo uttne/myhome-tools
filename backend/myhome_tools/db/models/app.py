@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Optional
 
 from sqlalchemy import Column, String, ForeignKey
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
 
 # ────────────────────────────────────────────────────────────────
@@ -72,3 +72,19 @@ class AppNamespaceUser(SQLModel, table=True):
     # relations
     namespace: Optional[AppNamespace] = Relationship(back_populates="members")
     user: Optional[AppUser] = Relationship(back_populates="member_of")
+
+class AppDefaultNamespace(SQLModel, table=True):
+    __tablename__ = "default_namespaces"
+    __table_args__ = {"schema": "app"}
+
+    id: ID = Field(sa_column=Column(String, primary_key=True))
+    user_id: ID = Field(
+        sa_column=Column(String, ForeignKey("app.users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    )
+    namespace_id: ID = Field(
+        sa_column=Column(String, ForeignKey("app.namespaces.id", ondelete="CASCADE"), nullable=False)
+    )
+
+    # relations
+    namespace: Optional[AppNamespace] = Relationship()
+    user: Optional[AppUser] = Relationship()

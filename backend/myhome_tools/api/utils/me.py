@@ -21,4 +21,4 @@ async def get_me(session: AsyncSession, sub: str, settings: Settings) -> AppUser
         if user is None:
             raise NotInitializedError()
 
-        return user.model_dump(mode="python")
+        return user
