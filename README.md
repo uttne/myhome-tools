@@ -17,7 +17,9 @@
 
 開発環境は Docker Compose で起動します。
 
-ローカルのリポジトリをコンテナの `/workspace` に bind mount するため、ホスト側で編集したファイルはコンテナ内の FastAPI / Vite に即時反映されます。
+ローカルのソースコードと設定ファイルをコンテナの `/workspace` に bind mount するため、ホスト側で編集したファイルはコンテナ内の FastAPI / Vite に即時反映されます。
+
+`node_modules`、`dist`、Python 仮想環境、依存キャッシュなどの生成物は named volume またはコンテナ内に置き、Windows ホストと Linux コンテナで共有しません。
 
 開発ツール:
 
@@ -80,9 +82,45 @@ docker compose exec backend uv run alembic upgrade head
 
 ### ローカルで直接起動する場合
 
-Docker Compose を使わずにフロントエンドを直接起動する場合は、Vite の proxy 設定により `/api` が `http://localhost:8000` に転送されます。
+Docker Compose を使わずに、ホスト OS 上で frontend / backend を直接起動して開発することもできます。
 
-基本方針として、通常の開発時は Docker Compose 上の NGINX / backend / frontend コンテナを利用します。
+この場合は、Vite の proxy 設定により `/api` が `http://localhost:8000` に転送されます。ブラウザでは `http://localhost:5173` を開きます。
+
+DB だけ Docker Compose で起動します。
+
+```bash
+docker compose up -d db
+```
+
+バックエンド:
+
+```bash
+cd backend
+copy .env.example .env
+uv sync
+uv run alembic upgrade head
+uv run uvicorn app.main:app --host 0.0.0.0 --reload
+```
+
+初期管理者を作成する場合:
+
+```powershell
+$env:ADMIN_EMAIL = "admin@example.com"
+$env:ADMIN_PASSWORD = "password"
+uv run python -m app.create_admin
+```
+
+フロントエンド:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+ローカル直接起動では、`backend/.venv` や `frontend/node_modules` はホスト側に作成されます。Docker Compose 起動時はこれらをコンテナ側 volume に分離しています。
+
+基本方針として、通常の開発時は Docker Compose 上の NGINX / backend / frontend コンテナを利用できます。ホスト側のエディタ補完やデバッガを使いたい場合は、ローカル直接起動を利用してください。
 
 ## API
 

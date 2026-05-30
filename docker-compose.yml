@@ -34,7 +34,11 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/workspace
+      - ./backend/app:/workspace/backend/app
+      - ./backend/alembic:/workspace/backend/alembic
+      - ./backend/alembic.ini:/workspace/backend/alembic.ini:ro
+      - ./backend/pyproject.toml:/workspace/backend/pyproject.toml:ro
+      - ./backend/uv.lock:/workspace/backend/uv.lock
       - backend-venv:/opt/venv
       - backend-uv-cache:/root/.cache/uv
     depends_on:
@@ -52,8 +56,15 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
     volumes:
-      - .:/workspace
+      - ./frontend/src:/workspace/frontend/src
+      - ./frontend/index.html:/workspace/frontend/index.html:ro
+      - ./frontend/package.json:/workspace/frontend/package.json:ro
+      - ./frontend/pnpm-lock.yaml:/workspace/frontend/pnpm-lock.yaml
+      - ./frontend/tsconfig.json:/workspace/frontend/tsconfig.json:ro
+      - ./frontend/tsconfig.node.json:/workspace/frontend/tsconfig.node.json:ro
+      - ./frontend/vite.config.ts:/workspace/frontend/vite.config.ts:ro
       - frontend-node-modules:/workspace/frontend/node_modules
+      - frontend-dist:/workspace/frontend/dist
       - pnpm-store:/pnpm/store
     depends_on:
       - backend
@@ -79,5 +90,6 @@ volumes:
   backend-venv:
   backend-uv-cache:
   frontend-node-modules:
+  frontend-dist:
   pnpm-store:
   postgres-data:

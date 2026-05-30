@@ -31,7 +31,9 @@
 
 開発環境では、Docker Compose で NGINX、フロントエンド、バックエンド、PostgreSQL を起動します。
 
-ローカルのリポジトリをコンテナの `/workspace` に bind mount し、ホスト側で編集したファイルをコンテナ内の開発サーバーへ反映します。
+ローカルのソースコードと設定ファイルをコンテナの `/workspace` に bind mount し、ホスト側で編集したファイルをコンテナ内の開発サーバーへ反映します。
+
+`node_modules`、`dist`、Python 仮想環境、依存キャッシュなどの生成物は named volume またはコンテナ内に置きます。Windows ホストと Linux コンテナで生成物を共有しないことで、OS 差分による依存関係の問題を避けます。
 
 | コンポーネント | URL / 起動方式 |
 | --- | --- |
@@ -42,9 +44,9 @@
 
 Docker Compose 利用時は、NGINX が `/api`、`/healthz`、`/readyz` を FastAPI へ、それ以外を Vite dev server へルーティングします。Vite の HMR 用 WebSocket も NGINX 経由で転送します。
 
-Docker Compose を使わずにローカルで直接起動する場合は、Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:8000` に proxy し、CORS 問題を避けます。
+Docker Compose を使わずにローカルで直接起動する場合は、バックエンドを `http://localhost:8000`、フロントエンドを `http://localhost:5173` で起動します。Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:8000` に proxy し、CORS 問題を避けます。
 
-## 開発環境の起動手順
+## Docker Compose での起動手順
 
 1. 開発環境を起動します。
 
@@ -66,3 +68,15 @@ Docker Compose を使わずにローカルで直接起動する場合は、Vite 
 | バックエンド依存管理・実行 | `uv` |
 | フロントエンド依存管理・実行 | `pnpm` |
 | ホットリロード | FastAPI reload / Vite HMR |
+
+## ローカル直接起動
+
+Docker Compose を使わず、ホスト OS 上で backend / frontend を直接起動する開発方法もサポートします。
+
+この場合:
+
+- DB は `docker compose up -d db` で起動します。
+- backend は `backend/` で `uv sync`、`uv run alembic upgrade head`、`uv run uvicorn app.main:app --host 0.0.0.0 --reload` を実行します。
+- frontend は `frontend/` で `pnpm install`、`pnpm dev` を実行します。
+- ブラウザは `http://localhost:5173` を開きます。
+- `backend/.venv` や `frontend/node_modules` はホスト側に作成されます。

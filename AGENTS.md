@@ -68,6 +68,64 @@ http://localhost:8080
 
 `frontend` はホストに `5173` を公開していません。Docker Compose 利用時は必ず `http://localhost:8080` を開いてください。
 
+Compose ではリポジトリ全体を bind mount しません。ソースコードと設定ファイルだけを個別に mount し、生成物は named volume またはコンテナ内に閉じます。
+
+- `frontend/src`, `frontend/*.json`, `frontend/vite.config.ts` などは同期する。
+- `frontend/node_modules` は `frontend-node-modules` volume。
+- `frontend/dist` は `frontend-dist` volume。
+- `backend/app`, `backend/alembic`, `backend/pyproject.toml`, `backend/uv.lock` などは同期する。
+- Python 仮想環境は `backend-venv` volume。
+- `uv` cache は `backend-uv-cache` volume。
+- `pnpm` store は `pnpm-store` volume。
+
+Windows ホストと Linux コンテナで `node_modules` や Python 仮想環境を共有しない方針です。
+
+## ローカル直接起動での開発
+
+Docker Compose を使わず、ホスト OS 上で frontend / backend を直接起動して開発する方法もサポートしています。
+
+この場合は DB だけ Compose で起動します。
+
+```bash
+docker compose up -d db
+```
+
+バックエンド:
+
+```bash
+cd backend
+copy .env.example .env
+uv sync
+uv run alembic upgrade head
+uv run uvicorn app.main:app --host 0.0.0.0 --reload
+```
+
+PowerShell で初期管理者を作成する場合:
+
+```powershell
+$env:ADMIN_EMAIL = "admin@example.com"
+$env:ADMIN_PASSWORD = "password"
+uv run python -m app.create_admin
+```
+
+フロントエンド:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+ローカル直接起動時のブラウザ URL:
+
+```text
+http://localhost:5173
+```
+
+ローカル直接起動では `backend/.venv` や `frontend/node_modules` がホスト側に作成されます。Docker Compose 起動時はこれらを named volume に分離しています。
+
+Vite proxy はローカル直接起動のために残しています。`frontend/vite.config.ts` の `/api` proxy は `http://localhost:8000` を向いています。
+
 ## 開発時のルーティング
 
 Docker Compose 利用時:
