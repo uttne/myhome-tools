@@ -2,12 +2,12 @@
 
 ## 推奨順序
 
-1. Docker Compose + PostgreSQL
-2. FastAPI + SQLModel
+1. Docker Compose + 開発用 Dockerfile
+2. FastAPI + SQLModel + uv
 3. Alembic
 4. `users` モデル
 5. `/api/me` とローカルログイン API
-6. React + Vite + proxy
+6. React + Vite + pnpm + proxy
 
 ## 理由
 
@@ -17,22 +17,20 @@
 
 ## バックエンド基盤
 
-TBD:
-
 - Python プロジェクト構成
 - FastAPI 起動設定
 - SQLModel 設定
 - Alembic 設定
-- Docker Compose の DB 定義
+- Docker Compose の backend / db 定義
+- `uv` による依存管理
 
 ## フロントエンド基盤
-
-TBD:
 
 - React + Vite セットアップ
 - `/api` proxy 設定
 - 認証状態管理
 - ローカルログイン画面
+- `pnpm` による依存管理
 
 ## k3s デプロイ
 

@@ -29,44 +29,40 @@
 
 ## 開発環境
 
-開発環境では、データベースのみをコンテナ化し、フロントエンドとバックエンドはローカル PC 上で直接起動します。
+開発環境では、Docker Compose で NGINX、フロントエンド、バックエンド、PostgreSQL を起動します。
+
+ローカルのリポジトリをコンテナの `/workspace` に bind mount し、ホスト側で編集したファイルをコンテナ内の開発サーバーへ反映します。
 
 | コンポーネント | URL / 起動方式 |
 | --- | --- |
-| フロントエンド | `http://localhost:5173` / Vite |
-| バックエンド | `http://localhost:8000` / Uvicorn |
+| NGINX | `http://localhost:8080` / 開発時のブラウザ入口 |
+| フロントエンド | Vite + pnpm / NGINX から `frontend:5173` へ転送 |
+| バックエンド | `http://localhost:8000` / Uvicorn + uv |
 | データベース | Docker Compose 上の PostgreSQL |
 
-Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:8000` に proxy し、開発時の CORS 問題を避けます。
+Docker Compose 利用時は、NGINX が `/api`、`/healthz`、`/readyz` を FastAPI へ、それ以外を Vite dev server へルーティングします。Vite の HMR 用 WebSocket も NGINX 経由で転送します。
 
-## ローカル起動手順
+Docker Compose を使わずにローカルで直接起動する場合は、Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:8000` に proxy し、CORS 問題を避けます。
 
-1. PostgreSQL を起動します。
+## 開発環境の起動手順
 
-   ```bash
-   docker compose up -d db
-   ```
-
-2. Alembic でマイグレーションを適用します。
+1. 開発環境を起動します。
 
    ```bash
-   alembic upgrade head
+   docker compose up --build
    ```
 
-3. FastAPI を起動します。
+2. 初期管理者を作成します。
 
    ```bash
-   uvicorn app.main:app --reload
+   docker compose exec backend sh -c "ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=password uv run python -m app.create_admin"
    ```
 
-4. React/Vite を起動します。
+## 開発ツール
 
-   ```bash
-   npm run dev
-   ```
-
-## 開発環境の追加検討
-
-現在の方針では開発環境はローカル実行、本番は k3s 実行です。開発体験は良い一方で、環境差分による問題が出る可能性があります。
-
-必要に応じて、バックエンドも Docker Compose で起動できる補助設定を用意しておくと、本番に近い形で再現確認できます。
+| 用途 | ツール |
+| --- | --- |
+| 開発時の入口 | NGINX |
+| バックエンド依存管理・実行 | `uv` |
+| フロントエンド依存管理・実行 | `pnpm` |
+| ホットリロード | FastAPI reload / Vite HMR |

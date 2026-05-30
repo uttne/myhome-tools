@@ -1,0 +1,1 @@
+"""myhome-tools backend package."""
