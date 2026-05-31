@@ -154,3 +154,32 @@ task local:frontend:dev
 | `POST` | `/api/auth/login` | ローカルログイン |
 | `POST` | `/api/auth/logout` | ローカルログアウト |
 | `POST` | `/api/auth/password` | ローカルパスワード設定・変更 |
+
+## 本番用コンテナイメージ
+
+frontend は Vite の build 結果を NGINX で配信する image、backend は FastAPI を Uvicorn で起動する image として build します。
+
+デフォルトでは GHCR 向けの image 名になります。
+
+```bash
+task image:build IMAGE_TAG=0.1.0
+task image:push IMAGE_TAG=0.1.0
+```
+
+build と push をまとめて行う場合:
+
+```bash
+task image:publish IMAGE_TAG=0.1.0
+```
+
+ローカル registry に push する場合は `IMAGE_REGISTRY` を差し替えます。
+
+```bash
+task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
+```
+
+個別に image 名を指定したい場合は `FRONTEND_IMAGE` / `BACKEND_IMAGE` を指定できます。
+
+```bash
+task image:publish FRONTEND_IMAGE=localhost:5000/myhome-frontend:dev BACKEND_IMAGE=localhost:5000/myhome-backend:dev
+```

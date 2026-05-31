@@ -31,6 +31,31 @@ FastAPI にはヘルスチェック用エンドポイントを用意します。
 | `/healthz` | プロセスが起動していることを確認する liveness probe |
 | `/readyz` | DB 接続など依存先を確認する readiness probe |
 
+## コンテナイメージ
+
+本番環境では、frontend と backend をそれぞれ独立したコンテナイメージとして配布します。
+
+| イメージ | Dockerfile | 内容 |
+| --- | --- | --- |
+| frontend | `docker/frontend.prod.Dockerfile` | Vite の build 結果を NGINX で静的配信する |
+| backend | `docker/backend.prod.Dockerfile` | FastAPI を Uvicorn で起動する |
+
+レジストリは GHCR とローカル registry のどちらにも対応できるように、`Taskfile.yml` の `IMAGE_REGISTRY` と `IMAGE_TAG` で切り替えます。
+
+GHCR へ publish する例:
+
+```bash
+task image:publish IMAGE_REGISTRY=ghcr.io/uttne IMAGE_TAG=0.1.0
+```
+
+ローカル registry へ publish する例:
+
+```bash
+task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
+```
+
+Helm Chart では、これらの image repository と tag を values から指定できるようにします。
+
 ## 今後追加する設計
 
 TBD:
@@ -39,5 +64,4 @@ TBD:
 - namespace 名
 - Deployment / Service / Ingress の具体定義
 - Cloudflare Tunnel の設定方法
-- コンテナイメージのビルド・配布方法
 - `cloudflared` の冗長化

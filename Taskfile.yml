@@ -1,8 +1,15 @@
 version: "3"
 
+dotenv:
+  - .env
+
 vars:
   ADMIN_EMAIL: '{{default "admin@example.com" .ADMIN_EMAIL}}'
   ADMIN_PASSWORD: '{{default "password" .ADMIN_PASSWORD}}'
+  IMAGE_REGISTRY: '{{default "ghcr.io/uttne" .IMAGE_REGISTRY}}'
+  IMAGE_TAG: '{{default "latest" .IMAGE_TAG}}'
+  FRONTEND_IMAGE: '{{default (printf "%s/myhome-tools-frontend:%s" .IMAGE_REGISTRY .IMAGE_TAG) .FRONTEND_IMAGE}}'
+  BACKEND_IMAGE: '{{default (printf "%s/myhome-tools-backend:%s" .IMAGE_REGISTRY .IMAGE_TAG) .BACKEND_IMAGE}}'
 
 tasks:
   default:
@@ -87,6 +94,44 @@ tasks:
       - task: nginx:test
       - task: backend:lint
       - task: frontend:build
+
+  image:build:
+    desc: Build production frontend and backend images
+    cmds:
+      - task: image:build:frontend
+      - task: image:build:backend
+
+  image:build:frontend:
+    desc: Build the production frontend image
+    cmds:
+      - docker build -f docker/frontend.prod.Dockerfile -t {{.FRONTEND_IMAGE}} .
+
+  image:build:backend:
+    desc: Build the production backend image
+    cmds:
+      - docker build -f docker/backend.prod.Dockerfile -t {{.BACKEND_IMAGE}} .
+
+  image:push:
+    desc: Push production frontend and backend images
+    cmds:
+      - task: image:push:frontend
+      - task: image:push:backend
+
+  image:push:frontend:
+    desc: Push the production frontend image
+    cmds:
+      - docker push {{.FRONTEND_IMAGE}}
+
+  image:push:backend:
+    desc: Push the production backend image
+    cmds:
+      - docker push {{.BACKEND_IMAGE}}
+
+  image:publish:
+    desc: Build and push production frontend and backend images
+    cmds:
+      - task: image:build
+      - task: image:push
 
   local:backend:sync:
     desc: Sync backend dependencies on the host

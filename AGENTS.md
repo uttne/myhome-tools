@@ -66,6 +66,9 @@ task --list
 - `task check`: `docker compose config`、NGINX 設定確認、backend lint、frontend build を実行
 - `task backend:lint`: backend の Ruff
 - `task frontend:build`: frontend build
+- `task image:build`: 本番用 frontend / backend image を build
+- `task image:push`: 本番用 frontend / backend image を registry へ push
+- `task image:publish`: 本番用 frontend / backend image を build して push
 - `task db:up`: DB だけ起動
 - `task db:migrate`: Alembic migration
 - `task admin:create`: 初期管理者作成
@@ -259,6 +262,24 @@ task backend:lint
 
 ```bash
 task frontend:build
+```
+
+本番用 image build:
+
+```bash
+task image:build IMAGE_TAG=0.1.0
+```
+
+GHCR へ publish:
+
+```bash
+task image:publish IMAGE_REGISTRY=ghcr.io/uttne IMAGE_TAG=0.1.0
+```
+
+ローカル registry へ publish:
+
+```bash
+task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
 ```
 
 バックエンド依存同期:
