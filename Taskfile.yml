@@ -10,6 +10,11 @@ vars:
   IMAGE_TAG: '{{default "latest" .IMAGE_TAG}}'
   FRONTEND_IMAGE: '{{default (printf "%s/myhome-tools-frontend:%s" .IMAGE_REGISTRY .IMAGE_TAG) .FRONTEND_IMAGE}}'
   BACKEND_IMAGE: '{{default (printf "%s/myhome-tools-backend:%s" .IMAGE_REGISTRY .IMAGE_TAG) .BACKEND_IMAGE}}'
+  HELM_CHART: '{{default "charts/myhome-tools" .HELM_CHART}}'
+  HELM_CHART_NAME: '{{default "myhome-tools" .HELM_CHART_NAME}}'
+  HELM_CHART_VERSION: '{{default "0.1.0" .HELM_CHART_VERSION}}'
+  HELM_CHART_DEST: '{{default "dist/charts" .HELM_CHART_DEST}}'
+  HELM_OCI_REGISTRY: '{{default "oci://ghcr.io/uttne/charts" .HELM_OCI_REGISTRY}}'
 
 tasks:
   default:
@@ -132,6 +137,35 @@ tasks:
     cmds:
       - task: image:build
       - task: image:push
+
+  helm:lint:
+    desc: Lint the Helm chart
+    cmds:
+      - helm lint {{.HELM_CHART}}
+
+  helm:template:
+    desc: Render the Helm chart manifests
+    cmds:
+      - helm template myhome-tools {{.HELM_CHART}}
+
+  helm:package:
+    desc: Package the Helm chart
+    cmds:
+      - mkdir -p {{.HELM_CHART_DEST}}
+      - helm package {{.HELM_CHART}} --destination {{.HELM_CHART_DEST}}
+
+  helm:push:
+    desc: Push the packaged Helm chart to an OCI registry
+    deps:
+      - helm:package
+    cmds:
+      - helm push {{.HELM_CHART_DEST}}/{{.HELM_CHART_NAME}}-{{.HELM_CHART_VERSION}}.tgz {{.HELM_OCI_REGISTRY}}
+
+  helm:publish:
+    desc: Lint, package, and push the Helm chart to an OCI registry
+    cmds:
+      - task: helm:lint
+      - task: helm:push
 
   local:backend:sync:
     desc: Sync backend dependencies on the host

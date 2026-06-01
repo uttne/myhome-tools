@@ -69,6 +69,9 @@ task --list
 - `task image:build`: 本番用 frontend / backend image を build
 - `task image:push`: 本番用 frontend / backend image を registry へ push
 - `task image:publish`: 本番用 frontend / backend image を build して push
+- `task helm:lint`: Helm Chart の lint
+- `task helm:template`: Helm Chart の manifest render
+- `task helm:publish`: Helm Chart を package して OCI registry へ push
 - `task db:up`: DB だけ起動
 - `task db:migrate`: Alembic migration
 - `task admin:create`: 初期管理者作成
@@ -282,6 +285,18 @@ task image:publish IMAGE_REGISTRY=ghcr.io/uttne IMAGE_TAG=0.1.0
 task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
 ```
 
+Helm Chart lint:
+
+```bash
+task helm:lint
+```
+
+Helm Chart publish:
+
+```bash
+task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+```
+
 バックエンド依存同期:
 
 ```bash
@@ -374,6 +389,18 @@ PowerShell では `Invoke-WebRequest` を使ってもよいです。
 重要な設計判断:
 
 - `docs/decisions/ADR-0001-cloudflare-access-and-local-auth.md`
+
+## Helm Chart 実装メモ
+
+主要ファイル:
+
+- `charts/myhome-tools/Chart.yaml`: Chart metadata
+- `charts/myhome-tools/values.yaml`: デフォルト values
+- `charts/myhome-tools/templates/frontend-deployment.yaml`: frontend Deployment
+- `charts/myhome-tools/templates/backend-deployment.yaml`: backend Deployment
+- `charts/myhome-tools/templates/ingress.yaml`: `/api`、`/healthz`、`/readyz` を backend、それ以外を frontend へルーティング
+
+Secret の中身は Chart に含めません。`backend.secretEnv.databaseUrl.secretName` と `backend.secretEnv.jwtSecretKey.secretName` で既存 Secret を参照します。
 
 ## ドキュメント更新ルール
 

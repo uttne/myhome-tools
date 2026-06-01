@@ -1,0 +1,135 @@
+# Kubernetes リソース名の基本名を上書きします。空の場合は Chart 名を使います。
+nameOverride: ""
+
+# Kubernetes リソース名全体を上書きします。空の場合は "<release>-<chart>" を使います。
+fullnameOverride: ""
+
+# フロントエンド / バックエンドの両方で使うイメージ取得用 Secret です。
+# GHCR などの非公開レジストリからイメージを取得する場合に設定します。
+# 例:
+# imagePullSecrets:
+#   - name: ghcr-pull-secret
+imagePullSecrets: []
+
+# フロントエンド / バックエンド / マイグレーション Pod が使う ServiceAccount です。
+serviceAccount:
+  # この Chart で ServiceAccount を作成します。
+  create: true
+  # 作成する ServiceAccount に追加する annotations です。
+  annotations: {}
+  # 既存または作成する ServiceAccount 名です。空の場合は Chart の完全名を使います。
+  name: ""
+
+# フロントエンドは React のビルド結果を NGINX で静的配信します。
+frontend:
+  # フロントエンド Pod の複製数です。
+  replicaCount: 1
+  image:
+    # フロントエンドのコンテナイメージリポジトリです。
+    repository: ghcr.io/uttne/myhome-tools-frontend
+    # フロントエンドのコンテナイメージタグです。本番では固定バージョンを指定します。
+    tag: latest
+    # Kubernetes のイメージ取得ポリシーです。
+    pullPolicy: IfNotPresent
+  service:
+    # クラスター内部公開用の Service 種別です。
+    type: ClusterIP
+    # Ingress から参照する Service port です。
+    port: 80
+  # フロントエンド Pod に追加する annotations です。
+  podAnnotations: {}
+  # フロントエンドコンテナのリソース要求量 / 上限値です。
+  resources: {}
+  # Kubernetes 標準のスケジューリング制御です。
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# バックエンドは FastAPI アプリケーションを Uvicorn で起動します。
+backend:
+  # バックエンド Pod の複製数です。
+  replicaCount: 1
+  image:
+    # バックエンドのコンテナイメージリポジトリです。
+    repository: ghcr.io/uttne/myhome-tools-backend
+    # バックエンドのコンテナイメージタグです。本番では固定バージョンを指定します。
+    tag: latest
+    # Kubernetes のイメージ取得ポリシーです。
+    pullPolicy: IfNotPresent
+  service:
+    # クラスター内部公開用の Service 種別です。
+    type: ClusterIP
+    # Ingress から参照する Service port です。
+    port: 8000
+  # FastAPI に渡す非 secret の環境変数です。
+  env:
+    # FastAPI が使う表示用アプリケーション名です。
+    APP_NAME: myhome-tools
+    # ブラウザから見える origin です。公開 URL と一致させます。
+    FRONTEND_ORIGIN: https://app.example.com
+    # JWT 署名アルゴリズムです。
+    JWT_ALGORITHM: HS256
+    # ローカル JWT cookie の有効期限を分単位で指定します。
+    ACCESS_TOKEN_EXPIRE_MINUTES: "1440"
+    # ローカル JWT 認証で使う cookie 名です。
+    AUTH_COOKIE_NAME: myhome_access_token
+    # HTTPS の本番環境では true を指定します。
+    SECURE_COOKIES: "true"
+    # Cloudflare Access の email 許可リストです。複数指定する場合はカンマ区切りにします。
+    ALLOWED_CLOUDFLARE_EMAILS: ""
+  # Secret 由来の環境変数です。Secret の中身はこの Chart では管理しません。
+  secretEnv:
+    databaseUrl:
+      # DATABASE_URL を含む既存 Secret 名です。空の場合は環境変数を出力しません。
+      secretName: ""
+      # SQLAlchemy のデータベース URL を格納している Secret のキーです。
+      secretKey: DATABASE_URL
+    jwtSecretKey:
+      # JWT_SECRET_KEY を含む既存 Secret 名です。空の場合は環境変数を出力しません。
+      secretName: ""
+      # JWT 署名 secret を格納している Secret のキーです。
+      secretKey: JWT_SECRET_KEY
+  # Kubernetes の EnvVar オブジェクトとしてそのまま追加する環境変数です。
+  # 例:
+  # extraEnv:
+  #   - name: EXAMPLE
+  #     value: "true"
+  extraEnv: []
+  # バックエンド Pod に追加する annotations です。
+  podAnnotations: {}
+  # バックエンドコンテナのリソース要求量 / 上限値です。
+  resources: {}
+  # Kubernetes 標準のスケジューリング制御です。
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Ingress はブラウザからの通信をフロントエンド、API 通信をバックエンドへ振り分けます。
+ingress:
+  # Ingress リソースを作成します。
+  enabled: true
+  # IngressClass 名です。空の場合はクラスターのデフォルトに任せます。
+  className: ""
+  # cert-manager やコントローラー設定など、Ingress に追加する annotations です。
+  annotations: {}
+  # アプリケーションの公開ホスト名です。
+  host: app.example.com
+  # Kubernetes Ingress 標準形式の TLS 設定です。
+  # 例:
+  # tls:
+  #   - secretName: myhome-tools-tls
+  #     hosts:
+  #       - app.example.com
+  tls: []
+
+# 任意で有効化できる Alembic マイグレーション Job です。
+# バックエンドイメージを使って "alembic upgrade head" を実行します。
+migration:
+  # Helm hook としてマイグレーションを実行したい場合だけ true にします。
+  enabled: false
+  # Job を失敗と判定するまでの再試行回数です。
+  backoffLimit: 1
+  # デフォルトではインストール / アップグレードの前に Job を実行する hook annotations を設定します。
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded

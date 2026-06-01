@@ -56,12 +56,38 @@ task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
 
 Helm Chart では、これらの image repository と tag を values から指定できるようにします。
 
+## Helm Chart
+
+Kubernetes へのデプロイ定義は `charts/myhome-tools` の Helm Chart で管理します。
+
+Chart のファイル構成、values の意味、Secret 参照方法は `charts/myhome-tools/README.md` に記載します。
+
+初期構成では以下を Chart に含めます。
+
+- frontend の Deployment / Service
+- backend の Deployment / Service
+- Ingress
+- ServiceAccount
+- 任意で有効化できる Alembic migration Job
+
+本番固有の値は Chart 本体ではなく values で上書きします。
+
+- image tag
+- Ingress host
+- Secret 名
+- replica 数
+- ingress class / annotations
+
+Chart package は OCI registry として GHCR に publish できる形にします。
+
+```bash
+task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+```
+
 ## 今後追加する設計
 
 TBD:
 
-- Kubernetes manifest の配置場所
 - namespace 名
-- Deployment / Service / Ingress の具体定義
 - Cloudflare Tunnel の設定方法
 - `cloudflared` の冗長化

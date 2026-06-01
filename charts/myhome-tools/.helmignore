@@ -1,0 +1,9 @@
+# "helm package" 実行時にパッケージへ含めないファイルです。
+.git/
+.github/
+.vscode/
+.idea/
+*.swp
+*.tmp
+*.bak
+*.tgz

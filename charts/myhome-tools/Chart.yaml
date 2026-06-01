@@ -1,0 +1,8 @@
+apiVersion: v2
+name: myhome-tools
+description: Helm chart for the myhome-tools web application
+type: application
+# Chart パッケージのバージョンです。テンプレートやデフォルト値を変更したら更新します。
+version: 0.1.0
+# アプリケーションのバージョンです。可能であればデプロイするイメージバージョンと揃えます。
+appVersion: "0.1.0"

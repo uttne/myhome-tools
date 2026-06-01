@@ -183,3 +183,41 @@ task image:publish IMAGE_REGISTRY=localhost:5000 IMAGE_TAG=dev
 ```bash
 task image:publish FRONTEND_IMAGE=localhost:5000/myhome-frontend:dev BACKEND_IMAGE=localhost:5000/myhome-backend:dev
 ```
+
+## Helm Chart
+
+本番用 Kubernetes manifest は `charts/myhome-tools` の Helm Chart で管理します。
+
+Chart のファイル構成と values の詳細は `charts/myhome-tools/README.md` を参照してください。
+
+Chart の静的確認:
+
+```bash
+task helm:lint
+task helm:template
+```
+
+直接 install / upgrade する場合:
+
+```bash
+helm upgrade --install myhome-tools charts/myhome-tools \
+  --namespace myhome-tools \
+  --create-namespace \
+  --set frontend.image.tag=0.1.0 \
+  --set backend.image.tag=0.1.0 \
+  --set ingress.host=app.example.com \
+  --set backend.secretEnv.databaseUrl.secretName=myhome-tools-db \
+  --set backend.secretEnv.jwtSecretKey.secretName=myhome-tools-auth
+```
+
+OCI registry に Chart package を push する場合:
+
+```bash
+task helm:publish
+```
+
+デフォルトでは `oci://ghcr.io/uttne/charts` へ push します。変更する場合は `HELM_OCI_REGISTRY` を指定します。
+
+```bash
+task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+```
