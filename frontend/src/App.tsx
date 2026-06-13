@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router";
 
 type User = {
   id: string;
@@ -69,6 +70,7 @@ function LogoutPage() {
 }
 
 function HomePage() {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>({ status: "loading" });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -107,7 +109,7 @@ function HomePage() {
   }
 
   function handleLogout() {
-    window.location.assign("/logout");
+    navigate("/logout");
   }
 
   if (authState.status === "loading") {
@@ -168,9 +170,12 @@ function HomePage() {
 }
 
 export function App() {
-  if (window.location.pathname === "/logout") {
-    return <LogoutPage />;
-  }
-
-  return <HomePage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/logout" element={<LogoutPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
