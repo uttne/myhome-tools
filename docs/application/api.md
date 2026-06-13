@@ -12,7 +12,7 @@ TBD
 | --- | --- | --- | --- |
 | `GET` | `/api/me` | 現在のログインユーザーを返す | Cloudflare Access またはローカル JWT |
 | `POST` | `/api/auth/login` | ローカルログイン | 未認証 |
-| `POST` | `/api/auth/logout` | ローカルログアウト | ローカル JWT |
+| `POST` | `/api/auth/logout` | ローカルログアウト、必要に応じて外部ログアウト URL を返す | 未認証 |
 | `POST` | `/api/auth/password` | 自分のローカルパスワードを設定・変更 | ログイン済み |
 
 ## 管理者 API

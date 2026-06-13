@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     auth_cookie_name: str = "myhome_access_token"
     secure_cookies: bool = False
     allowed_cloudflare_emails: str = ""
+    external_logout_url: str = ""
 
     @property
     def allowed_cloudflare_email_set(self) -> set[str]:

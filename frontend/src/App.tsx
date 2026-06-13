@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type User = {
   id: string;
@@ -13,6 +13,11 @@ type AuthState =
   | { status: "authenticated"; user: User }
   | { status: "anonymous" };
 
+type LogoutResponse = {
+  message: string;
+  logout_url: string | null;
+};
+
 async function fetchMe(): Promise<User | null> {
   const response = await fetch("/api/me", { credentials: "include" });
   if (response.status === 401) {
@@ -24,7 +29,46 @@ async function fetchMe(): Promise<User | null> {
   return response.json();
 }
 
-export function App() {
+function LogoutPage() {
+  const didStartLogout = useRef(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (didStartLogout.current) {
+      return;
+    }
+    didStartLogout.current = true;
+
+    async function logout() {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      const result = (await response.json()) as LogoutResponse;
+      window.location.assign(result.logout_url || "/");
+    }
+
+    logout().catch(() => {
+      setErrorMessage("ログアウトに失敗しました。時間をおいて再度お試しください。");
+    });
+  }, []);
+
+  return (
+    <main className="card">
+      <p className="eyebrow">myhome-tools</p>
+      <h1>ログアウト中</h1>
+      <p>ログアウト処理を実行しています。</p>
+      {errorMessage ? <p className="error">{errorMessage}</p> : null}
+    </main>
+  );
+}
+
+function HomePage() {
   const [authState, setAuthState] = useState<AuthState>({ status: "loading" });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,12 +106,8 @@ export function App() {
     setPassword("");
   }
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    setAuthState({ status: "anonymous" });
+  function handleLogout() {
+    window.location.assign("/logout");
   }
 
   if (authState.status === "loading") {
@@ -125,4 +165,12 @@ export function App() {
       </form>
     </main>
   );
+}
+
+export function App() {
+  if (window.location.pathname === "/logout") {
+    return <LogoutPage />;
+  }
+
+  return <HomePage />;
 }

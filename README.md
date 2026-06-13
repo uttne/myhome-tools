@@ -152,7 +152,7 @@ task local:frontend:dev
 | `GET` | `/readyz` | DB 接続を含む準備確認 |
 | `GET` | `/api/me` | 現在のユーザーを取得 |
 | `POST` | `/api/auth/login` | ローカルログイン |
-| `POST` | `/api/auth/logout` | ローカルログアウト |
+| `POST` | `/api/auth/logout` | ローカルログアウト、必要に応じて外部ログアウト URL を返す |
 | `POST` | `/api/auth/password` | ローカルパスワード設定・変更 |
 
 ## 本番用コンテナイメージ

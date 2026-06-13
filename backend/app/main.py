@@ -12,7 +12,13 @@ from app.auth import (
 from app.config import get_settings
 from app.db import check_database, get_session
 from app.models import User
-from app.schemas import LoginRequest, MessageResponse, PasswordChangeRequest, UserRead
+from app.schemas import (
+    LoginRequest,
+    LogoutResponse,
+    MessageResponse,
+    PasswordChangeRequest,
+    UserRead,
+)
 from app.security import verify_password
 
 settings = get_settings()
@@ -61,10 +67,11 @@ def login(
     return user
 
 
-@app.post("/api/auth/logout", response_model=MessageResponse)
-def logout(response: Response) -> MessageResponse:
+@app.post("/api/auth/logout", response_model=LogoutResponse)
+def logout(response: Response) -> LogoutResponse:
     clear_auth_cookie(response)
-    return MessageResponse(message="logged out")
+    logout_url = settings.external_logout_url.strip() or None
+    return LogoutResponse(message="logged out", logout_url=logout_url)
 
 
 @app.post("/api/auth/password", response_model=UserRead)

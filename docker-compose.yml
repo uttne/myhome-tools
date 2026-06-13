@@ -30,6 +30,7 @@ services:
       AUTH_COOKIE_NAME: myhome_access_token
       SECURE_COOKIES: "false"
       ALLOWED_CLOUDFLARE_EMAILS: ""
+      EXTERNAL_LOGOUT_URL: ""
       UV_PROJECT_ENVIRONMENT: /opt/venv/backend
     ports:
       - "8000:8000"

@@ -27,3 +27,7 @@ class PasswordChangeRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class LogoutResponse(MessageResponse):
+    logout_url: str | None = None
