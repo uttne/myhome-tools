@@ -179,4 +179,18 @@ GHCR の OCI registry へ push:
 task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
 ```
 
-Chart package の version は `Chart.yaml` の `version` から決まります。同じ version の中身を上書きすると追跡や rollback が難しくなるため、本番で使う version は変更ごとに上げることを推奨します。
+Chart に変更がある場合だけ、OCI registry 上の最新 version の patch を 1 つ上げた version で push:
+
+```bash
+task helm:publish:next-patch HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+```
+
+リモート最新 version と chart-testing による変更検出は個別に確認できます。
+
+```bash
+task helm:version:remote HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+task helm:ct:list-changed
+task helm:ct:lint
+```
+
+通常の `helm:publish` で作成する Chart package の version は `Chart.yaml` の `version` から決まります。`helm:publish:next-patch` は Docker image `quay.io/helmpack/chart-testing` で chart-testing を実行し、変更された Chart がある場合だけ `Chart.yaml` を書き換えずに OCI registry 上の最新 version の patch を 1 つ上げた version を `helm package --version` で指定します。同じ version の中身を上書きすると追跡や rollback が難しくなるため、本番で使う version は変更ごとに上げることを推奨します。

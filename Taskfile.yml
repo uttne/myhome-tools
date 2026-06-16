@@ -15,6 +15,10 @@ vars:
   HELM_CHART_VERSION: '{{default "0.1.0" .HELM_CHART_VERSION}}'
   HELM_CHART_DEST: '{{default "dist/charts" .HELM_CHART_DEST}}'
   HELM_OCI_REGISTRY: '{{default "oci://ghcr.io/uttne/charts" .HELM_OCI_REGISTRY}}'
+  CT_IMAGE: '{{default "quay.io/helmpack/chart-testing:v3.13.0" .CT_IMAGE}}'
+  CT_CHART_DIRS: '{{default "charts" .CT_CHART_DIRS}}'
+  CT_TARGET_BRANCH: '{{default "main" .CT_TARGET_BRANCH}}'
+  HELM_REGISTRY_DIR: '{{if env "APPDATA"}}{{env "APPDATA"}}/helm/registry{{else}}{{env "HOME"}}/.config/helm/registry{{end}}'
 
 tasks:
   default:
@@ -166,6 +170,105 @@ tasks:
     cmds:
       - task: helm:lint
       - task: helm:push
+
+  helm:version:remote:
+    desc: Print the latest Helm chart version in the OCI registry
+    cmds:
+      - |
+        docker run --rm \
+          -v "{{.ROOT_DIR}}:/work" \
+          -v "{{.HELM_REGISTRY_DIR}}:/root/.config/helm/registry:ro" \
+          -w /work \
+          "{{.CT_IMAGE}}" \
+          sh -c '
+            helm show chart "{{.HELM_OCI_REGISTRY}}/{{.HELM_CHART_NAME}}" \
+              | awk "/^version:/ { print \$2; exit }"
+          '
+
+  helm:ct:list-changed:
+    desc: List Helm charts changed from the chart-testing target branch
+    cmds:
+      - |
+        docker run --rm \
+          -v "{{.ROOT_DIR}}:/work" \
+          -v "{{.HELM_REGISTRY_DIR}}:/root/.config/helm/registry:ro" \
+          -w /work \
+          "{{.CT_IMAGE}}" \
+          sh -c '
+            git config --global --add safe.directory /work
+            ct list-changed \
+              --chart-dirs "{{.CT_CHART_DIRS}}" \
+              --target-branch "{{.CT_TARGET_BRANCH}}"
+          '
+
+  helm:ct:lint:
+    desc: Lint changed Helm charts with chart-testing in Docker
+    cmds:
+      - |
+        docker run --rm \
+          -v "{{.ROOT_DIR}}:/work" \
+          -v "{{.HELM_REGISTRY_DIR}}:/root/.config/helm/registry:ro" \
+          -w /work \
+          "{{.CT_IMAGE}}" \
+          sh -c '
+            git config --global --add safe.directory /work
+            ct lint \
+              --chart-dirs "{{.CT_CHART_DIRS}}" \
+              --target-branch "{{.CT_TARGET_BRANCH}}" \
+              --check-version-increment=false
+          '
+
+  helm:publish:next-patch:
+    desc: Push changed Helm charts with the latest OCI patch version incremented
+    cmds:
+      - task: helm:version:remote
+      - task: helm:ct:list-changed
+      - task: helm:ct:lint
+      - |
+        docker run --rm \
+          -v "{{.ROOT_DIR}}:/work" \
+          -v "{{.HELM_REGISTRY_DIR}}:/root/.config/helm/registry:ro" \
+          -w /work \
+          "{{.CT_IMAGE}}" \
+          sh -c '
+            set -eu
+            git config --global --add safe.directory /work
+
+            changed_charts="$(
+              ct list-changed \
+                --chart-dirs "{{.CT_CHART_DIRS}}" \
+                --target-branch "{{.CT_TARGET_BRANCH}}"
+            )"
+            if [ -z "$changed_charts" ]; then
+              echo "No chart changes detected."
+              exit 0
+            fi
+
+            latest_version="$(
+              helm show chart "{{.HELM_OCI_REGISTRY}}/{{.HELM_CHART_NAME}}" \
+                | awk "/^version:/ { print \$2; exit }"
+            )"
+            major="${latest_version%%.*}"
+            rest="${latest_version#*.}"
+            minor="${rest%%.*}"
+            patch="${rest#*.}"
+            case "$major.$minor.$patch" in
+              *[!0-9.]*|.*|*..*|*.)
+                echo "Only MAJOR.MINOR.PATCH versions are supported: $latest_version" >&2
+                exit 1
+                ;;
+            esac
+            next_version="$major.$minor.$((patch + 1))"
+
+            mkdir -p "{{.HELM_CHART_DEST}}"
+            printf "%s\n" "$changed_charts" | while IFS= read -r chart; do
+              package="{{.HELM_CHART_DEST}}/$(basename "$chart")-$next_version.tgz"
+              helm package "$chart" \
+                --destination "{{.HELM_CHART_DEST}}" \
+                --version "$next_version"
+              helm push "$package" "{{.HELM_OCI_REGISTRY}}"
+            done
+          '
 
   local:backend:sync:
     desc: Sync backend dependencies on the host

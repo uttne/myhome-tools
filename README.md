@@ -221,3 +221,19 @@ task helm:publish
 ```bash
 task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
 ```
+
+Chart に変更がある場合は、OCI registry 上の最新 version の patch を 1 つ上げた version で push できます。
+
+```bash
+task helm:publish:next-patch HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+```
+
+リモート最新 version と chart-testing による変更検出は個別に確認できます。
+
+```bash
+task helm:version:remote HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
+task helm:ct:list-changed
+task helm:ct:lint
+```
+
+chart-testing は Docker image `quay.io/helmpack/chart-testing` で実行します。`CT_TARGET_BRANCH` で比較先 branch、`CT_IMAGE` で使用する image tag を変更できます。この task は `Chart.yaml` を書き換えず、package 作成時に `helm package --version` で自動採番した version を指定します。
