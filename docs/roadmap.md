@@ -1,43 +1,58 @@
 # 今後の実装予定
 
-## 推奨順序
+## 完了済み（基盤）
 
-1. Docker Compose + 開発用 Dockerfile
-2. FastAPI + SQLModel + uv
-3. Alembic
-4. `users` モデル
-5. `/api/me` とローカルログイン API
-6. React + Vite + pnpm + proxy
+以下は実装済みです。詳細は各ドキュメントとコードを参照してください。
 
-## 理由
+| 項目 | 状態 | 参照 |
+| --- | --- | --- |
+| Docker Compose + 開発用 Dockerfile | 完了 | `docker-compose.yml`, `docker/dev.Dockerfile` |
+| 開発用 NGINX ルーティング | 完了 | `docker/nginx.dev.conf` |
+| FastAPI + SQLModel + uv | 完了 | `backend/app/` |
+| Alembic | 完了 | `backend/alembic/` |
+| `users` モデルと初期マイグレーション | 完了 | `backend/app/models.py`, `0001_create_users` |
+| 認証 API（`/api/me`, login, logout, password） | 完了 | `backend/app/main.py`, `backend/app/auth.py` |
+| Cloudflare Access ヘッダー認証 + JIT プロビジョニング | 完了 | `backend/app/auth.py` |
+| ローカル JWT Cookie 認証 | 完了 | `backend/app/security.py` |
+| 初期管理者 CLI | 完了 | `backend/app/create_admin.py` |
+| React + Vite + pnpm + React Router | 完了 | `frontend/src/` |
+| ローカルログイン / ログアウト画面 | 完了 | `frontend/src/App.tsx` |
+| 本番用 frontend / backend イメージ | 完了 | `docker/*.prod.Dockerfile` |
+| Helm Chart | 完了 | `charts/myhome-tools/` |
+| Taskfile による開発・ビルド補助 | 完了 | `Taskfile.yml` |
 
-- 認証方式、ユーザーモデル、DB マイグレーションがアプリ全体の基盤になるため。
-- `/api/me` ができるとフロントエンドのログイン判定をすぐ接続できるため。
-- Vite proxy や React 側の画面遷移も、実 API がある方が検証しやすいため。
+## 次の実装フェーズ
 
-## バックエンド基盤
+### 認証・管理機能の拡張
 
-- Python プロジェクト構成
-- FastAPI 起動設定
-- SQLModel 設定
-- Alembic 設定
-- Docker Compose の backend / db 定義
-- `uv` による依存管理
+| 項目 | 優先度 | 状態 |
+| --- | --- | --- |
+| `Cf-Access-Jwt-Assertion` の署名検証 | 高 | 未着手 |
+| 管理者向けユーザー管理 API | 中 | 未着手 |
+| パスワードリセットフロー | 中 | 未着手 |
+| フロントエンドのパスワード設定画面 | 中 | 未着手 |
 
-## フロントエンド基盤
+### 業務機能
 
-- React + Vite セットアップ
-- `/api` proxy 設定
-- 認証状態管理
-- ローカルログイン画面
-- `pnpm` による依存管理
+| 項目 | 優先度 | 状態 |
+| --- | --- | --- |
+| アプリの主要機能定義 | 高 | 未決（`application/design.md` を参照） |
+| ドメインモデル拡張 | 高 | 未着手 |
+| 業務 API / 画面 | 高 | 未着手 |
 
-## k3s デプロイ
+### 本番デプロイ
 
-TBD:
+| 項目 | 優先度 | 状態 |
+| --- | --- | --- |
+| Cloudflare Tunnel 設定 | 高 | 未着手 |
+| ExternalSecret 定義 | 高 | 未着手 |
+| 本番 namespace / values 確定 | 中 | 未着手 |
+| `cloudflared` の冗長化 | 低 | 未着手 |
 
-- コンテナイメージ作成
-- Kubernetes manifest
-- ExternalSecret manifest
-- Ingress 設定
-- Cloudflare Tunnel 設定
+## 推奨実装順序
+
+1. アプリの主要機能を `application/design.md` で確定する。
+2. ドメインモデル、API、画面を追加する。
+3. Cloudflare Access JWT 検証を追加する。
+4. 管理者向けユーザー管理を追加する。
+5. 本番デプロイ（Helm values、ESO、Cloudflare Tunnel）を行う。

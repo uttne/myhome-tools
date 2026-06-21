@@ -6,18 +6,29 @@
 
 本アプリ側では、復旧時に必要な情報として DB 名、マイグレーション履歴、アプリバージョンの対応関係を把握できるようにします。
 
+## 環境別 DB 名
+
+| 環境 | DB 名 | 備考 |
+| --- | --- | --- |
+| 開発（Compose / ローカル） | `myhome_tools` | `docker-compose.yml` で定義 |
+| 本番 | TBD | 既存 PostgreSQL 上に専用 DB を作成 |
+
 ## アプリ側で確認する項目
 
 - 専用 DB が既存 PostgreSQL のバックアップ対象に含まれること。
 - 復旧時に Alembic の `alembic_version` テーブルも復元されること。
 - 復旧後、アプリのバージョンと DB スキーマのバージョンが一致すること。
 
+## 現在の Alembic revision
+
+| revision | 内容 |
+| --- | --- |
+| `0001_create_users` | `users` テーブル作成 |
+
 ## 復旧時に必要な情報
 
-TBD:
-
 - 専用 DB 名
-- 本番アプリのバージョン
+- 本番アプリのイメージ tag（frontend / backend）
 - 適用済み Alembic revision
 - 復旧対象日時
 - 復旧確認手順
