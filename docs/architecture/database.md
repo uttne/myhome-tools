@@ -59,20 +59,26 @@ Alembic revision: `0001_create_users`
 
 ## フェーズ 1 で追加予定のテーブル
 
-詳細: [`../application/features/shopping-list.md`](../application/features/shopping-list.md), [`object-storage.md`](object-storage.md)
+詳細: [`../application/features/groups.md`](../application/features/groups.md), [`../application/features/shopping-list.md`](../application/features/shopping-list.md), [`object-storage.md`](object-storage.md)
 
 | テーブル | 用途 |
 | --- | --- |
-| `shopping_lists` | 買い物リスト |
+| `groups` | グループ（個人 / 共有） |
+| `group_memberships` | ユーザーとグループの所属 |
+| `shopping_lists` | 買い物リスト（`group_id` スコープ） |
 | `shopping_list_items` | リスト内アイテム |
-| `shopping_item_masters` | 商品マスター |
-| `shopping_list_history` | 完了リストの履歴 |
+| `shopping_item_masters` | 商品マスター（`group_id` スコープ） |
 | `stored_objects` | ファイルのメタデータ（`storage_path` は `FILE_STORAGE_ROOT` 相対） |
+
+### 主要制約（フェーズ 1）
+
+- `shopping_lists`: `(group_id)` WHERE `is_default = true AND status = 'active'` に partial unique index
+- `group_memberships`: `(group_id, user_id)` UNIQUE
+- 個人グループ: ユーザーあたり1つ（アプリ層 + DB で保証）
 
 ## 今後検討する設計
 
 TBD:
 
-- インデックス方針（`shopping_lists.is_default` partial unique 等）
-- 論理削除の有無
 - 監査ログテーブルの要否
+- リスト履歴（スナップショット）テーブル（フェーズ2以降）

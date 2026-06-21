@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
@@ -24,6 +24,7 @@ from app.security import verify_password
 settings = get_settings()
 
 app = FastAPI(title=settings.app_name)
+api_v1 = APIRouter(prefix="/api/v1")
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,12 +46,12 @@ def readyz() -> MessageResponse:
     return MessageResponse(message="ok")
 
 
-@app.get("/api/me", response_model=UserRead)
+@api_v1.get("/me", response_model=UserRead)
 def read_me(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 
 
-@app.post("/api/auth/login", response_model=UserRead)
+@api_v1.post("/auth/login", response_model=UserRead)
 def login(
     payload: LoginRequest,
     response: Response,
@@ -67,14 +68,14 @@ def login(
     return user
 
 
-@app.post("/api/auth/logout", response_model=LogoutResponse)
+@api_v1.post("/auth/logout", response_model=LogoutResponse)
 def logout(response: Response) -> LogoutResponse:
     clear_auth_cookie(response)
     logout_url = settings.external_logout_url.strip() or None
     return LogoutResponse(message="logged out", logout_url=logout_url)
 
 
-@app.post("/api/auth/password", response_model=UserRead)
+@api_v1.post("/auth/password", response_model=UserRead)
 def change_password(
     payload: PasswordChangeRequest,
     current_user: User = Depends(get_current_user),
@@ -90,3 +91,6 @@ def change_password(
             )
 
     return set_user_password(session, current_user, payload.new_password)
+
+
+app.include_router(api_v1)

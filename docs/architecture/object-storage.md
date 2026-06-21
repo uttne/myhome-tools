@@ -25,7 +25,7 @@
   → PostgreSQL（stored_objects メタデータ、エンティティ参照）
 
 ブラウザ（表示時）
-  → FastAPI（/api/files/{id} 等でプロキシ）
+  → FastAPI（/api/v1/files/{id} 等でプロキシ）
     → FILE_STORAGE_ROOT から読み出し
 ```
 
@@ -108,8 +108,8 @@ PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務
 
 ## 参照・削除
 
-- **参照**: FastAPI が `FILE_STORAGE_ROOT` から読み出し、`/api/files/{id}` 等で配信（認可付き）
-- **削除**: ファイル削除 + `stored_objects` 削除。孤立ファイルの GC は将来検討
+- **参照**: `GET /api/v1/files/{id}` — 認証済み `user` / `admin` なら誰でも取得可（家族共有データ）
+- **削除**: マスター削除時にファイル + `stored_objects` を削除。孤立ファイルの GC は将来検討
 
 ## バックアップ
 

@@ -16,7 +16,7 @@
 
 | パス | 転送先 | 役割 |
 | --- | --- | --- |
-| `/api/*` | FastAPI | API 処理と認証・認可 |
+| `/api/*` | FastAPI | API 処理と認証・認可（業務 API は `/api/v1/*`） |
 | `/healthz`, `/readyz` | FastAPI | ヘルスチェック |
 | `/` | NGINX（frontend イメージ） | React の静的ファイルを返す |
 
@@ -102,7 +102,7 @@ Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT 有効期限（分） | `1440` |
 | `AUTH_COOKIE_NAME` | 認証 Cookie 名 | `myhome_access_token` |
 | `SECURE_COOKIES` | Cookie Secure フラグ | `false` |
-| `ALLOWED_CLOUDFLARE_EMAILS` | JIT 許可メール（カンマ区切り） | 空 |
+| `FILE_STORAGE_ROOT` | ファイル保存ルート | `/workspace/data/files`（Compose） |
 | `EXTERNAL_LOGOUT_URL` | 外部ログアウト URL | 空 |
 
 設定定義: `backend/app/config.py`

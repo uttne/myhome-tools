@@ -6,7 +6,7 @@
 
 | ディレクトリ / ファイル | 内容 |
 | --- | --- |
-| `architecture/` | システム全体、環境、認証、DB、デプロイ、オブジェクトストレージ |
+| `architecture/` | システム全体、環境、認証、DB、デプロイ、ファイルストレージ |
 | `application/` | アプリケーション設計、機能仕様、索引 |
 | `application/features/` | 機能別仕様（本体） |
 | `operations/` | 本番運用、Secret、バックアップ・復旧 |
@@ -20,12 +20,13 @@
 
 1. `architecture/overview.md` — システム全体像
 2. `application/design.md` — アプリケーション設計（家族 Hub）
-3. `application/features/shopping-list.md` — 買い物リスト仕様
-4. `architecture/object-storage.md` — ファイルストレージ（`FILE_STORAGE_ROOT`）
-5. `architecture/environments.md` — 開発・本番環境
-4. `architecture/authentication.md` — 認証・認可
-5. `roadmap.md` — 実装状況と次のステップ
-6. `open-questions.md` — 未決事項
+3. `application/features/groups.md` — グループモデル
+4. `application/features/shopping-list.md` — 買い物リスト仕様
+5. `architecture/object-storage.md` — ファイルストレージ（`FILE_STORAGE_ROOT`）
+6. `architecture/environments.md` — 開発・本番環境
+7. `architecture/authentication.md` — 認証・認可
+8. `roadmap.md` — 実装状況と次のステップ
+9. `open-questions.md` — 未決事項
 
 ### 実装時
 
@@ -45,7 +46,7 @@
 | 領域 | 状態 |
 | --- | --- |
 | 認証 API / 最小 UI | 完了 |
-| AppShell / Home / 買い物リスト | 設計済み・未実装 |
+| グループ / AppShell / Home / 買い物リスト | 設計済み・未実装 |
 | ファイルストレージ連携 | 設計済み・未実装 |
 | 本番デプロイ（Tunnel、ESO） | 未着手 |
 

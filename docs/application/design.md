@@ -52,7 +52,7 @@
 
 
 
-業務データは**家族共有**を前提とします（買い物リストなど）。
+業務データは**グループ**単位でスコープします。家族は共有グループとして運用します。詳細: [`features/groups.md`](features/groups.md)
 
 
 
@@ -87,6 +87,8 @@
 | --- | --- | --- | --- |
 
 | 認証・セッション | [`features/auth.md`](features/auth.md) | 実装済み | 0 |
+
+| グループ | [`features/groups.md`](features/groups.md) | 未着手 | 1 |
 
 | アプリシェル | [`features/app-shell.md`](features/app-shell.md) | 未着手 | 1 |
 
@@ -128,9 +130,9 @@
 
 /shopping/masters/:id     マスター編集
 
-/shopping/history         履歴一覧
+/shopping/archived        アーカイブ済みリスト
 
-/shopping/history/:id     履歴詳細
+/settings/password        パスワード設定
 
 /logout                   ログアウト                      [auth]
 
@@ -152,13 +154,15 @@
 
 | ヘルスチェック | `/healthz`, `/readyz` | [`api.md`](api.md) | 実装済み |
 
-| 認証 | `/api/me`, `/api/auth/*` | [`features/auth.md`](features/auth.md) | 実装済み |
+| 認証 | `/api/v1/me`, `/api/v1/auth/*` | [`features/auth.md`](features/auth.md) | 実装済み |
 
-| Home 集約 | `/api/home/*` | [`features/home.md`](features/home.md) | 未着手 |
+| グループ | `/api/v1/groups/*` | [`features/groups.md`](features/groups.md) | 未着手 |
 
-| 買い物リスト | `/api/shopping/*` | [`features/shopping-list.md`](features/shopping-list.md) | 未着手 |
+| 買い物リスト | `/api/v1/shopping/*` | [`features/shopping-list.md`](features/shopping-list.md) | 未着手 |
 
-| 管理者 | `/api/admin/*` | [`features/auth.md`](features/auth.md) | 未実装 |
+| ファイル | `/api/v1/files/{id}` | [`../architecture/object-storage.md`](../architecture/object-storage.md) | 未着手 |
+
+| 管理者 | `/api/v1/admin/*` | [`features/auth.md`](features/auth.md) | 未実装 |
 
 
 
@@ -172,13 +176,15 @@
 
 | User | `users` | [`features/auth.md`](features/auth.md) | 実装済み |
 
+| Group | `groups` | [`features/groups.md`](features/groups.md) | 未着手 |
+
+| GroupMembership | `group_memberships` | 同上 | 未着手 |
+
 | ShoppingList | `shopping_lists` | [`features/shopping-list.md`](features/shopping-list.md) | 未着手 |
 
 | ShoppingListItem | `shopping_list_items` | 同上 | 未着手 |
 
 | ShoppingItemMaster | `shopping_item_masters` | 同上 | 未着手 |
-
-| ShoppingListHistory | `shopping_list_history` | 同上 | 未着手 |
 
 | StoredObject | `stored_objects` | [`../architecture/object-storage.md`](../architecture/object-storage.md) | 未着手 |
 
@@ -236,15 +242,15 @@
 
 | 0 | 認証基盤 | 完了 |
 
-| 1a | AppShell + Home | 未着手 |
+| 1a | グループ + AppShell + Home | 未着手 |
 
 | 1b | 買い物リスト（画像なし） | 未着手 |
 
 | 1c | ファイルストレージ + マスター画像 | 未着手 |
 
-| 1d | 履歴 + ダッシュボード | 未着手 |
+| 1d | アーカイブ + ダッシュボード | 未着手 |
 
-| 2 | 他サービス追加 | 未着手 |
+| 2 | グループ招待、ソート view、他サービス | 未着手 |
 
 | 3 | JWT 検証、ユーザー管理 | 未着手 |
 

@@ -150,10 +150,10 @@ task local:frontend:dev
 | --- | --- | --- |
 | `GET` | `/healthz` | プロセスの死活確認 |
 | `GET` | `/readyz` | DB 接続を含む準備確認 |
-| `GET` | `/api/me` | 現在のユーザーを取得 |
-| `POST` | `/api/auth/login` | ローカルログイン |
-| `POST` | `/api/auth/logout` | ローカルログアウト、必要に応じて外部ログアウト URL を返す |
-| `POST` | `/api/auth/password` | ローカルパスワード設定・変更 |
+| `GET` | `/api/v1/me` | 現在のユーザーを取得 |
+| `POST` | `/api/v1/auth/login` | ローカルログイン |
+| `POST` | `/api/v1/auth/logout` | ローカルログアウト、必要に応じて外部ログアウト URL を返す |
+| `POST` | `/api/v1/auth/password` | ローカルパスワード設定・変更 |
 
 ## 本番用コンテナイメージ
 

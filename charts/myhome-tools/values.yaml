@@ -75,8 +75,6 @@ backend:
     AUTH_COOKIE_NAME: myhome_access_token
     # HTTPS の本番環境では true を指定します。
     SECURE_COOKIES: "true"
-    # Cloudflare Access の email 許可リストです。複数指定する場合はカンマ区切りにします。
-    ALLOWED_CLOUDFLARE_EMAILS: ""
     # 外部認証基盤側のログアウト URL です。空の場合はローカルログアウトだけを行います。
     EXTERNAL_LOGOUT_URL: ""
     # ファイル保存のルートディレクトリです。本番では JuiceFS PVC のマウント先を指定します。

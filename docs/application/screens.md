@@ -12,7 +12,7 @@ SPA の画面索引です。機能ごとの詳細は `features/` を参照して
 
 | 機能 | 画面 | 仕様 | 状態 |
 | --- | --- | --- | --- |
-| 認証 | `/`, `/logout` | [`features/auth.md`](features/auth.md) | 実装済み（要 AppShell 統合） |
+| 認証 | `/`, `/logout`, `/settings/password` | [`features/auth.md`](features/auth.md) | 一部実装済み |
 | アプリシェル | 共通レイアウト | [`features/app-shell.md`](features/app-shell.md) | 未着手 |
 | Home | `/home` | [`features/home.md`](features/home.md) | 未着手 |
 | 買い物リスト | `/shopping/*` | [`features/shopping-list.md`](features/shopping-list.md) | 未着手 |
@@ -20,14 +20,14 @@ SPA の画面索引です。機能ごとの詳細は `features/` を参照して
 ## 全体画面マップ
 
 ```text
-/                         ログイン / → /home リダイレクト
+/                         未認証: ログイン / 認証済み: → /home
 /home                     Home Hub                         [home]
 /shopping                 リスト一覧                       [shopping]
 /shopping/lists/:id       リスト詳細
 /shopping/masters         マスター一覧
 /shopping/masters/:id     マスター編集
-/shopping/history         履歴一覧
-/shopping/history/:id     履歴詳細
+/shopping/archived        アーカイブ済みリスト
+/settings/password        パスワード設定                     [auth]
 /logout                   ログアウト                       [auth]
 ```
 
@@ -37,6 +37,7 @@ SPA の画面索引です。機能ごとの詳細は `features/` を参照して
 | --- | --- |
 | Home | `/home` |
 | 買い物リスト | `/shopping` |
+| パスワード設定 | `/settings/password` |
 | ログアウト | `/logout` |
 
 ## 共通方針

@@ -7,6 +7,7 @@
 | ファイル | 機能 | 状態 |
 | --- | --- | --- |
 | [`auth.md`](auth.md) | 認証・セッション・ユーザー管理 | 実装済み（管理 API は未実装） |
+| [`groups.md`](groups.md) | グループ（個人 / 共有） | 未着手 |
 | [`app-shell.md`](app-shell.md) | 共通レイアウト・ナビゲーション | 未着手 |
 | [`home.md`](home.md) | Home Hub・クイックアクセス・ダッシュボード | 未着手 |
 | [`shopping-list.md`](shopping-list.md) | 買い物リスト | 未着手 |

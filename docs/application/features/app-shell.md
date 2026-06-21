@@ -47,6 +47,7 @@
 | --- | --- | --- |
 | Home | `/home` | 1 |
 | 買い物リスト | `/shopping` | 1 |
+| パスワード設定 | `/settings/password` | 1 |
 | ログアウト | `/logout` | 0（既存） |
 
 将来のサービスはここに追加します。
@@ -64,6 +65,7 @@
 /home                 Home（AppShell 内）
 /shopping             買い物リスト（AppShell 内）
 /shopping/...         買い物リスト子画面
+/settings/password    パスワード設定（AppShell 内）
 /logout               ログアウト（AppShell 外でも可）
 ```
 

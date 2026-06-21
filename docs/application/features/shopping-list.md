@@ -8,61 +8,65 @@
 
 ## 概要
 
-家族で共有する買い物リスト管理サービスです。
+グループ単位で共有する買い物リスト管理サービスです。
 
-複数のリストを作成でき、デフォルトリストを指定します。リスト指定なしでアイテムを追加した場合はデフォルトリストに追加されます。
+複数のリストを長期間使い続け、アイテムの追加・完了マークを繰り返します。リストに「完了」状態は持たず、不要になったら **アーカイブ** します。
+
+複数リストを作成でき、グループごとにデフォルトリストを1つ指定します。リスト指定なしでアイテムを追加した場合はデフォルトリストに追加されます。
 
 商品マスターに画像を登録でき、画像は `FILE_STORAGE_ROOT` 配下に保存します（本番は JuiceFS PVC）。
 
-ストレージ設計: [`../../architecture/object-storage.md`](../../architecture/object-storage.md)
+関連: [`groups.md`](groups.md)、[`../../architecture/object-storage.md`](../../architecture/object-storage.md)
 
 ## コンセプト
 
 | 概念 | 説明 |
 | --- | --- |
-| リスト | 買い物の単位（例: スーパー、ドラッグストア）。家族共有 |
-| デフォルトリスト | アイテム追加時にリスト未指定ならここへ追加。家族で1つ |
+| グループ | データスコープ。詳細は [`groups.md`](groups.md) |
+| リスト | 買い物の単位（例: スーパー、ドラッグストア）。長期利用 |
+| デフォルトリスト | アイテム追加時にリスト未指定ならここへ追加。グループ内で1つ |
 | リストアイテム | リスト内の1行。マスター参照または自由入力 |
-| マスター | よく買う商品の登録（名前、画像、メモ） |
-| 履歴 | 完了したリストのスナップショット |
+| マスター | よく買う商品の登録（名前、画像、メモ）。グループスコープ |
+| アーカイブ | 使わなくなったリストを論理削除する状態 |
 
 ## ユースケース
 
 | ID | ユースケース | ロール | 優先度 |
 | --- | --- | --- | --- |
-| UC-SHOP-001 | 買い物リスト一覧を見る | user, admin | 高 |
+| UC-SHOP-001 | グループの買い物リスト一覧を見る | user, admin | 高 |
 | UC-SHOP-002 | リスト内アイテムの完了をマークする | user, admin | 高 |
 | UC-SHOP-003 | リストにアイテムを追加する | user, admin | 高 |
 | UC-SHOP-004 | マスターからアイテムを追加する | user, admin | 高 |
 | UC-SHOP-005 | マスターを作成・編集する（画像含む） | user, admin | 高 |
-| UC-SHOP-006 | リストを完了して履歴にする | user, admin | 中 |
-| UC-SHOP-007 | 新しいリストを作成する | user, admin | 高 |
-| UC-SHOP-008 | デフォルトリストを変更する | user, admin | 高 |
-| UC-SHOP-009 | 過去の買い物履歴を参照する | user, admin | 中 |
+| UC-SHOP-006 | リストをアーカイブする | user, admin | 中 |
+| UC-SHOP-007 | アーカイブ済みリストを完全削除する | user, admin | 低 |
+| UC-SHOP-008 | 新しいリストを作成する | user, admin | 高 |
+| UC-SHOP-009 | デフォルトリストを変更する | user, admin | 高 |
 | UC-SHOP-010 | 補充アラートを受け取る | user, admin | 低（未来） |
 
 ## 要件
 
-### フェーズ 1（今回）
+### フェーズ 1
 
 | ID | 要件 | 状態 |
 | --- | --- | --- |
-| FR-SHOP-001 | 複数の買い物リストを家族で共有管理 | 未着手 |
-| FR-SHOP-002 | デフォルトリストを1つ指定可能 | 未着手 |
+| FR-SHOP-001 | グループ単位で複数リストを共有管理 | 未着手 |
+| FR-SHOP-002 | グループごとにデフォルトリストを1つ指定 | 未着手 |
 | FR-SHOP-003 | リスト未指定の追加はデフォルトリストへ | 未着手 |
 | FR-SHOP-004 | リスト内アイテムの表示・完了マーク | 未着手 |
 | FR-SHOP-005 | リストへのアイテム追加（自由入力） | 未着手 |
-| FR-SHOP-006 | 商品マスターの CRUD | 未着手 |
+| FR-SHOP-006 | 商品マスターの CRUD（グループスコープ） | 未着手 |
 | FR-SHOP-007 | マスター画像のアップロード・表示 | 未着手 |
-| FR-SHOP-008 | リスト完了と履歴保存 | 未着手 |
-| FR-SHOP-009 | 履歴一覧・詳細参照 | 未着手 |
+| FR-SHOP-008 | リストのアーカイブ（論理削除） | 未着手 |
+| FR-SHOP-009 | アーカイブ済みリストの完全削除 | 未着手 |
 
-### 未来
+### フェーズ 2 以降
 
 | ID | 要件 | 状態 |
 | --- | --- | --- |
-| FR-SHOP-F001 | 購入履歴からの補充アラート | 未決 |
-| FR-SHOP-F002 | アラートからリストへの追加確認 | 未決 |
+| FR-SHOP-F001 | ルール付きソート view（家族共有） | 未決 |
+| FR-SHOP-F002 | 購入履歴からの補充アラート | 未決 |
+| FR-SHOP-F003 | リスト完了スナップショット（履歴） | 未決 |
 
 ## 画面
 
@@ -72,8 +76,7 @@
 | リスト詳細 | `/shopping/lists/:id` | アイテム一覧、完了マーク、追加 | 未着手 |
 | マスター一覧 | `/shopping/masters` | 商品マスター管理 | 未着手 |
 | マスター編集 | `/shopping/masters/:id` | 名前・画像・メモ編集 | 未着手 |
-| 履歴一覧 | `/shopping/history` | 完了済みリスト | 未着手 |
-| 履歴詳細 | `/shopping/history/:id` | スナップショット表示 | 未着手 |
+| アーカイブ一覧 | `/shopping/archived` | アーカイブ済みリスト | 未着手 |
 
 ### 画面遷移
 
@@ -81,13 +84,13 @@
 /shopping
 ├── リストカード → /shopping/lists/:id
 ├── マスター管理 → /shopping/masters
-└── 履歴 → /shopping/history
+└── アーカイブ → /shopping/archived
 
 /shopping/lists/:id
 ├── アイテム完了トグル（インライン）
 ├── アイテム追加（インライン or モーダル）
 ├── マスターから追加
-└── リスト完了 → 履歴へ
+└── アーカイブ
 
 Home クイックアクセス QA-002
 └── モーダルでデフォルトリストへ追加
@@ -103,60 +106,74 @@ Home クイックアクセス QA-002
 │ ☑ パン                          │
 │ ☐ 卵                            │
 ├─────────────────────────────────┤
-│ [+ 追加]  [マスターから] [完了]   │
+│ [+ 追加]  [マスターから] [アーカイブ] │
 └─────────────────────────────────┘
 ```
 
 ## API
 
-ベースパス: `/api/shopping`
+ベースパス: `/api/v1/shopping`
+
+すべてのエンドポイントは `group_id` でスコープします（クエリまたはボディ）。呼び出しユーザーが当該グループのメンバーであることを要求します。
 
 ### リスト
 
 | メソッド | パス | 概要 | 認可 |
 | --- | --- | --- | --- |
-| `GET` | `/api/shopping/lists` | リスト一覧 | user, admin |
-| `POST` | `/api/shopping/lists` | リスト作成 | user, admin |
-| `GET` | `/api/shopping/lists/{id}` | リスト詳細 + アイテム | user, admin |
-| `PATCH` | `/api/shopping/lists/{id}` | 名前変更、デフォルト指定 | user, admin |
-| `POST` | `/api/shopping/lists/{id}/complete` | リスト完了 → 履歴化 | user, admin |
+| `GET` | `/api/v1/shopping/lists` | リスト一覧（`status=active` デフォルト） | メンバー |
+| `POST` | `/api/v1/shopping/lists` | リスト作成 | メンバー |
+| `GET` | `/api/v1/shopping/lists/{id}` | リスト詳細 + アイテム | メンバー |
+| `PATCH` | `/api/v1/shopping/lists/{id}` | 名前変更、デフォルト指定 | メンバー |
+| `POST` | `/api/v1/shopping/lists/{id}/archive` | アーカイブ（論理削除） | メンバー |
+| `DELETE` | `/api/v1/shopping/lists/{id}` | 完全削除（**archived のみ**） | メンバー |
 
 ### リストアイテム
 
 | メソッド | パス | 概要 | 認可 |
 | --- | --- | --- | --- |
-| `POST` | `/api/shopping/lists/{id}/items` | アイテム追加 | user, admin |
-| `POST` | `/api/shopping/items` | デフォルトリストへ追加（`list_id` 省略可） | user, admin |
-| `PATCH` | `/api/shopping/items/{id}` | 完了トグル、メモ更新 | user, admin |
-| `DELETE` | `/api/shopping/items/{id}` | アイテム削除 | user, admin |
+| `POST` | `/api/v1/shopping/lists/{id}/items` | アイテム追加 | メンバー |
+| `POST` | `/api/v1/shopping/items` | デフォルトリストへ追加（`list_id` 省略可） | メンバー |
+| `PATCH` | `/api/v1/shopping/items/{id}` | 完了トグル、メモ更新 | メンバー |
+| `DELETE` | `/api/v1/shopping/items/{id}` | アイテム削除 | メンバー |
+
+**表示順（フェーズ1）**: `GET` 系で `sort` クエリを受け付けます。並べ替えの保存はしません。
+
+| `sort` 値 | 説明 |
+| --- | --- |
+| `created_at` | 追加順（デフォルト） |
+| `name` | 名前昇順 |
+| `unchecked_first` | 未完了を上に、その後名前順 |
 
 ### マスター
 
 | メソッド | パス | 概要 | 認可 |
 | --- | --- | --- | --- |
-| `GET` | `/api/shopping/masters` | マスター一覧 | user, admin |
-| `POST` | `/api/shopping/masters` | マスター作成 | user, admin |
-| `GET` | `/api/shopping/masters/{id}` | マスター詳細 | user, admin |
-| `PATCH` | `/api/shopping/masters/{id}` | マスター更新 | user, admin |
-| `DELETE` | `/api/shopping/masters/{id}` | マスター削除 | user, admin |
-| `POST` | `/api/shopping/masters/{id}/image` | 画像アップロード | user, admin |
+| `GET` | `/api/v1/shopping/masters` | マスター一覧 | メンバー |
+| `POST` | `/api/v1/shopping/masters` | マスター作成 | メンバー |
+| `GET` | `/api/v1/shopping/masters/{id}` | マスター詳細 | メンバー |
+| `PATCH` | `/api/v1/shopping/masters/{id}` | マスター更新 | メンバー |
+| `DELETE` | `/api/v1/shopping/masters/{id}` | マスター削除（画像ファイルも削除） | メンバー |
+| `POST` | `/api/v1/shopping/masters/{id}/image` | 画像アップロード | メンバー |
 
-### 履歴
+### ファイル配信
 
 | メソッド | パス | 概要 | 認可 |
 | --- | --- | --- | --- |
-| `GET` | `/api/shopping/history` | 履歴一覧 | user, admin |
-| `GET` | `/api/shopping/history/{id}` | 履歴詳細 | user, admin |
+| `GET` | `/api/v1/files/{id}` | 画像などのバイナリ配信 | 認証済み user, admin |
+
+詳細: [`../../architecture/object-storage.md`](../../architecture/object-storage.md)
 
 ### サマリー（Home ダッシュボード用）
 
 | メソッド | パス | 概要 | 認可 |
 | --- | --- | --- | --- |
-| `GET` | `/api/shopping/summary` | 未完了件数など | user, admin |
+| `GET` | `/api/v1/shopping/summary` | 未完了件数など | メンバー |
+
+フェーズ1では `/api/v1/home/summary` は作りません。
 
 ### リクエスト例
 
-**デフォルトリストへアイテム追加** `POST /api/shopping/items`
+**デフォルトリストへアイテム追加** `POST /api/v1/shopping/items?group_id={uuid}`
 
 ```json
 {
@@ -165,13 +182,25 @@ Home クイックアクセス QA-002
 }
 ```
 
-`list_id` を省略するとデフォルトリストに追加します。
-
-**完了トグル** `PATCH /api/shopping/items/{id}`
+**完了トグル** `PATCH /api/v1/shopping/items/{id}`
 
 ```json
 {
   "is_checked": true
+}
+```
+
+**リスト詳細（表示順指定）** `GET /api/v1/shopping/lists/{id}?sort=unchecked_first`
+
+### GET /api/v1/shopping/summary
+
+```json
+{
+  "group_id": "uuid",
+  "total_open_items": 12,
+  "default_list_id": "uuid",
+  "default_list_name": "スーパー",
+  "default_list_open_items": 5
 }
 ```
 
@@ -182,15 +211,16 @@ Home クイックアクセス QA-002
 | カラム | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | PK |
+| `group_id` | UUID | FK → groups |
 | `name` | string | リスト名 |
-| `is_default` | boolean | 家族内で1つのみ true |
-| `status` | enum | `active`, `completed` |
+| `is_default` | boolean | グループ内で1つのみ true（active 時） |
+| `status` | enum | `active`, `archived` |
 | `created_by` | UUID | FK → users |
 | `created_at` | timestamptz | |
 | `updated_at` | timestamptz | |
-| `completed_at` | timestamptz | nullable |
+| `archived_at` | timestamptz | nullable |
 
-制約: 家族内で `is_default = true` は同時に1件のみ（アプリ層または partial unique index）。
+制約: `(group_id)` WHERE `is_default = true AND status = 'active'` に partial unique index。
 
 ### shopping_list_items
 
@@ -201,46 +231,25 @@ Home クイックアクセス QA-002
 | `master_id` | UUID | FK → shopping_item_masters, nullable |
 | `name` | string | 表示名（マスター参照時もスナップショット保持） |
 | `is_checked` | boolean | 完了マーク |
-| `sort_order` | int | 表示順 |
 | `created_by` | UUID | FK → users |
 | `created_at` | timestamptz | |
 | `checked_at` | timestamptz | nullable |
+| `updated_at` | timestamptz | 競合更新は Last-Write-Wins |
+
+`sort_order` カラムはフェーズ1では持ちません。表示順は GET の `sort` クエリで決めます。
 
 ### shopping_item_masters
 
 | カラム | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | PK |
+| `group_id` | UUID | FK → groups |
 | `name` | string | 商品名 |
 | `note` | string | メモ, nullable |
 | `image_object_id` | UUID | FK → stored_objects, nullable |
 | `created_by` | UUID | FK → users |
 | `created_at` | timestamptz | |
 | `updated_at` | timestamptz | |
-
-### shopping_list_history
-
-リスト完了時にスナップショットを保存します。
-
-| カラム | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | PK |
-| `list_id` | UUID | 元リスト ID（参照用） |
-| `list_name` | string | 完了時の名前 |
-| `completed_by` | UUID | FK → users |
-| `completed_at` | timestamptz | |
-| `snapshot` | JSONB | 完了時のアイテム一覧 |
-
-`snapshot` 例:
-
-```json
-{
-  "items": [
-    { "name": "牛乳", "is_checked": true },
-    { "name": "パン", "is_checked": true }
-  ]
-}
-```
 
 ### stored_objects
 
@@ -249,7 +258,7 @@ Home クイックアクセス QA-002
 | カラム | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | PK |
-| `storage_path` | string | `FILE_STORAGE_ROOT` からの相対パス（例: `shopping/masters/...`） |
+| `storage_path` | string | `FILE_STORAGE_ROOT` からの相対パス |
 | `content_type` | string | MIME |
 | `size_bytes` | int | サイズ |
 | `created_by` | UUID | FK → users |
@@ -258,51 +267,52 @@ Home クイックアクセス QA-002
 ### ER（概略）
 
 ```text
-users
+groups
   ├── shopping_lists
   │     └── shopping_list_items ──► shopping_item_masters
-  ├── shopping_item_masters ──► stored_objects
-  └── shopping_list_history
+  └── shopping_item_masters ──► stored_objects
 ```
 
 ## 権限
 
 | ロール | 権限 |
 | --- | --- |
-| `user` | リスト・マスター・履歴の参照・作成・更新・削除（家族共有） |
-| `admin` | 同上 |
+| `user` | 所属グループのリスト・マスターの CRUD |
+| `admin` | 同上 + 共有グループ作成・メンバー追加（フェーズ1） |
 
-初期は家族内全員が同等に操作可能です。将来、マスター管理を admin のみに制限するかは未決です。
+## リストのライフサイクル
 
-## リスト完了の挙動
+1. **active**: 通常利用。アイテムの追加・完了マークを繰り返す
+2. **archived**: `POST .../archive` で論理削除。一覧からは除外（アーカイブ画面で参照）
+3. **完全削除**: `DELETE` は `archived` のみ受け付け。アイテムとリストレコードを削除
 
-1. 全アイテムの状態を `snapshot` に保存
-2. `shopping_list_history` レコード作成
-3. `shopping_lists.status` を `completed` に更新
-4. `shopping_list_items` を削除（またはアーカイブ。初期は削除）
-5. 新しい `active` リストを同じ名前で自動作成するかは **未決**（初期は手動で新規作成）
+初回デフォルトリストの自動作成は **行いません**。ユーザーが手動でリストを作成します。
+
+## マスター削除
+
+- 既存リストアイテムの `master_id` を NULL にし、表示名は維持
+- 紐づく `stored_objects` と実ファイルを削除
 
 ## 未決事項
 
-| 項目 | 推奨 | 状態 |
-| --- | --- | --- |
-| リスト完了後の新リスト自動作成 | 手動作成 | 仮決定 |
-| マスター削除時の既存リストアイテム | `master_id` を NULL にし表示名は維持 | 仮決定 |
-| デフォルトリストの初期作成 | 初回アクセス時に「買い物」リストを自動作成 | 仮決定 |
+| 項目 | 状態 |
+| --- | --- |
+| 買い物リスト操作時のデフォルト `group_id` | 未決 |
+| マスター編集権限（全員 vs admin のみ） | 未決 |
 
 ## 実装フェーズ案
 
 | 順序 | 内容 |
 | --- | --- |
-| 1 | AppShell + Home（固定クイックアクセス） |
+| 1 | グループ基盤 + AppShell + Home |
 | 2 | リスト CRUD + アイテム追加・完了 |
 | 3 | マスター CRUD（画像なし） |
 | 4 | ファイルストレージ連携 + マスター画像 |
-| 5 | 履歴 |
-| 6 | Home ダッシュボード集約 |
+| 5 | アーカイブ + Home ダッシュボード |
 
 ## 関連
 
+- [`groups.md`](groups.md)
 - [`home.md`](home.md)
 - [`app-shell.md`](app-shell.md)
 - [`../../architecture/object-storage.md`](../../architecture/object-storage.md)

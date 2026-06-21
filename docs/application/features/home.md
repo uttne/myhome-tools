@@ -52,10 +52,9 @@ QA-002 は [`shopping-list.md`](shopping-list.md) の「デフォルトリスト
 
 | 指標 | 説明 |
 | --- | --- |
-| 未完了アイテム数 | 全リスト合計の未チェック件数 |
+| 未完了アイテム数 | 対象グループの全 active リスト合計の未チェック件数 |
 | デフォルトリスト名 | 現在のデフォルトリスト |
 | デフォルトリスト未完了数 | デフォルトリストのみの件数 |
-| 最終完了日時 | 直近でリストを完了した日時（あれば） |
 
 将来: 他サービス追加時にウィジェットを拡張します。
 
@@ -96,33 +95,32 @@ QA-002 は [`shopping-list.md`](shopping-list.md) の「デフォルトリスト
 ├─────────────────────────────────┤
 │ ダッシュボード                    │
 │ 未完了: 12  デフォルト: スーパー   │
-│ 最終完了: 2026-06-20            │
 └─────────────────────────────────┘
 ```
 
 ## API
 
-Home 専用 API は持たず、各サービス API の集約エンドポイントを利用します。
+フェーズ1では Home 専用 API を作りません。フロントエンドが `GET /api/v1/shopping/summary` を直接呼び出します。
 
 | メソッド | パス | 概要 |
 | --- | --- | --- |
-| `GET` | `/api/home/summary` | ダッシュボード用の集約データ（将来） |
+| `GET` | `/api/v1/shopping/summary` | ダッシュボード用データ |
 
-初期実装ではフロントエンドが `/api/shopping/summary` を直接呼んでもよいです。集約 API は後から追加可能です。
+`/api/v1/home/summary` は将来、複数サービスを集約する際に検討します。
 
-### GET /api/home/summary（案）
+### GET /api/v1/shopping/summary（レスポンス例）
 
 ```json
 {
-  "shopping": {
-    "total_open_items": 12,
-    "default_list_id": "uuid",
-    "default_list_name": "スーパー",
-    "default_list_open_items": 5,
-    "last_completed_at": "2026-06-20T10:00:00Z"
-  }
+  "group_id": "uuid",
+  "total_open_items": 12,
+  "default_list_id": "uuid",
+  "default_list_name": "スーパー",
+  "default_list_open_items": 5
 }
 ```
+
+詳細: [`shopping-list.md`](shopping-list.md)
 
 ## 権限
 

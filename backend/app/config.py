@@ -17,17 +17,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24
     auth_cookie_name: str = "myhome_access_token"
     secure_cookies: bool = False
-    allowed_cloudflare_emails: str = ""
     external_logout_url: str = ""
     file_storage_root: str = "./data/files"
-
-    @property
-    def allowed_cloudflare_email_set(self) -> set[str]:
-        return {
-            email.strip().lower()
-            for email in self.allowed_cloudflare_emails.split(",")
-            if email.strip()
-        }
 
 
 @lru_cache

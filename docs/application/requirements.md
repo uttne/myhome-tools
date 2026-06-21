@@ -24,6 +24,7 @@
 | 機能 | 要件 ID | 仕様 |
 | --- | --- | --- |
 | 認証・セッション | FR-AUTH-*, FR-ADMIN-* | [`features/auth.md`](features/auth.md) |
+| グループ | FR-GRP-* | [`features/groups.md`](features/groups.md) |
 | アプリシェル | FR-SHELL-* | [`features/app-shell.md`](features/app-shell.md) |
 | Home | FR-HOME-* | [`features/home.md`](features/home.md) |
 | 買い物リスト | FR-SHOP-* | [`features/shopping-list.md`](features/shopping-list.md) |
@@ -32,7 +33,7 @@
 
 | ID | カテゴリ | 要件 |
 | --- | --- | --- |
-| NFR-001 | セキュリティ | 外部公開は Cloudflare Access 経由。API 直アクセス経路を作らない |
+| NFR-001 | セキュリティ | 外部公開は Cloudflare Access 経由。メール制限は CF 側。API 直アクセス経路を作らない |
 | NFR-002 | セキュリティ | JWT 署名鍵、DB 接続情報は Secret 管理 |
 | NFR-003 | 可用性 | 単一 replica から開始。LAN はローカル認証で利用可能 |
 | NFR-004 | 保守性 | Alembic マイグレーション、Helm Chart によるデプロイ |
@@ -43,7 +44,8 @@
 
 ## スコープ外（フェーズ 1）
 
-- 補充アラート・購入予測（買い物リスト未来機能）
+- グループ招待、ソート view
+- リスト履歴（スナップショット）
 - クイックアクセスのユーザー別カスタマイズ
 - 買い物リスト以外のサービス実装
 - 画像リサイズ・サムネイル自動生成

@@ -66,13 +66,8 @@ def clear_auth_cookie(response: Response) -> None:
     response.delete_cookie(key=settings.auth_cookie_name, path="/")
 
 
-def _get_or_create_cloudflare_user(
-    session: Session, email: str, settings: Settings
-) -> User | None:
+def _get_or_create_cloudflare_user(session: Session, email: str) -> User | None:
     normalized_email = _normalize_email(email)
-    allowed_emails = settings.allowed_cloudflare_email_set
-    if allowed_emails and normalized_email not in allowed_emails:
-        return None
 
     user = get_user_by_email(session, normalized_email)
     if user:
@@ -93,7 +88,7 @@ def get_current_user(
     cf_email: str | None = Header(default=None, alias="Cf-Access-Authenticated-User-Email"),
 ) -> User:
     if cf_email:
-        user = _get_or_create_cloudflare_user(session, cf_email, settings)
+        user = _get_or_create_cloudflare_user(session, cf_email)
         if user:
             return user
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cloudflare user denied")

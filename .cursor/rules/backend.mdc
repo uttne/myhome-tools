@@ -22,7 +22,7 @@ alwaysApply: false
 
 優先順位: Cloudflare ヘッダー → Cookie `myhome_access_token` → 401
 
-- JIT は `ALLOWED_CLOUDFLARE_EMAILS` 一致時のみ。ロールは `user` 固定
+- JIT は Cloudflare ヘッダーありで未登録なら自動作成。ロールは `user` 固定。メール制限は CF Access 側
 - 管理者は CLI のみ（`python -m app.create_admin`）
 - `Cf-Access-Jwt-Assertion` 検証は未実装
 
@@ -36,6 +36,7 @@ alwaysApply: false
 
 - `bcrypt==4.0.1` 固定（`pyproject.toml`）。変更しない
 - パスワード検証前に `password_hash is None` を考慮（`verify_password` は対応済み）
+- 新 API は `APIRouter(prefix="/api/v1")` に追加する
 - API 追加時は `docs/application/api.md` も更新する
 
 ## コマンド

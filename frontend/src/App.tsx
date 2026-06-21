@@ -19,8 +19,10 @@ type LogoutResponse = {
   logout_url: string | null;
 };
 
+const API_V1 = "/api/v1";
+
 async function fetchMe(): Promise<User | null> {
-  const response = await fetch("/api/me", { credentials: "include" });
+  const response = await fetch(`${API_V1}/me`, { credentials: "include" });
   if (response.status === 401) {
     return null;
   }
@@ -41,7 +43,7 @@ function LogoutPage() {
     didStartLogout.current = true;
 
     async function logout() {
-      const response = await fetch("/api/auth/logout", {
+      const response = await fetch(`${API_V1}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -91,7 +93,7 @@ function HomePage() {
     event.preventDefault();
     setErrorMessage(null);
 
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch(`${API_V1}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

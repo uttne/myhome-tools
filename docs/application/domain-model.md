@@ -10,33 +10,44 @@ DB 設計: `../architecture/database.md`
 | エンティティ | テーブル | 機能 | 仕様 | 状態 |
 | --- | --- | --- | --- | --- |
 | User | `users` | 認証 | [`features/auth.md`](features/auth.md) | 実装済み |
+| Group | `groups` | グループ | [`features/groups.md`](features/groups.md) | 未着手 |
+| GroupMembership | `group_memberships` | グループ | 同上 | 未着手 |
 | ShoppingList | `shopping_lists` | 買い物リスト | [`features/shopping-list.md`](features/shopping-list.md) | 未着手 |
 | ShoppingListItem | `shopping_list_items` | 買い物リスト | 同上 | 未着手 |
 | ShoppingItemMaster | `shopping_item_masters` | 買い物リスト | 同上 | 未着手 |
-| ShoppingListHistory | `shopping_list_history` | 買い物リスト | 同上 | 未着手 |
 | StoredObject | `stored_objects` | ファイルストレージ | [`../architecture/object-storage.md`](../architecture/object-storage.md) | 未着手 |
 
 ## 関係図（フェーズ 1）
 
 ```text
 User
-  ├── shopping_lists (1:N)
-  │     └── shopping_list_items (1:N)
-  │           └── shopping_item_masters (N:1, optional)
-  ├── shopping_item_masters (1:N)
-  │     └── stored_objects (N:1, optional)
-  └── shopping_list_history (1:N)
+  └── group_memberships (N:M) ──► Group
+                                    ├── shopping_lists (1:N)
+                                    │     └── shopping_list_items (1:N)
+                                    │           └── shopping_item_masters (N:1, optional)
+                                    └── shopping_item_masters (1:N)
+                                          └── stored_objects (N:1, optional)
 ```
 
-## ドメインルール（買い物リスト）
+## ドメインルール
+
+### グループ
 
 | ルール | 説明 |
 | --- | --- |
-| 家族共有 | 全 `user` / `admin` が同一データを参照・更新 |
-| 複数リスト | 家族内で複数の `active` リストを保持可能 |
-| デフォルトリスト | `is_default = true` は同時に1件。未指定追加はここへ |
-| 履歴 | リスト完了時に `shopping_list_history` へスナップショット保存 |
-| 画像 | マスターのみ。`stored_objects` 経由で `FILE_STORAGE_ROOT` 上のパスを参照 |
+| 個人グループ | ユーザー作成時に1つ自動作成 |
+| データスコープ | 買い物リスト・マスターは `group_id` に紐づく |
+| アクセス | グループメンバーのみ当該データを操作可能 |
+
+### 買い物リスト
+
+| ルール | 説明 |
+| --- | --- |
+| 複数リスト | グループ内で複数の `active` リストを保持 |
+| デフォルトリスト | `is_default = true` はグループ内で同時に1件（active 時） |
+| ライフサイクル | `active` → `archived` → 完全削除。完了状態は持たない |
+| 表示順 | GET の `sort` クエリ。永続化しない（フェーズ1） |
+| 画像 | マスターのみ。`GET /api/v1/files/{id}` で配信 |
 
 ## User（概要）
 
