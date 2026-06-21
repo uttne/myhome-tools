@@ -9,7 +9,8 @@ alwaysApply: false
 ## 索引
 
 - 全体目次: `docs/README.md`
-- アプリ設計の起点: `docs/application/design.md`
+- アプリ全体設計: `docs/application/design.md`
+- 機能別仕様: `docs/application/features/`
 - 未決事項: `docs/open-questions.md`
 - 実装状況: `docs/roadmap.md`
 - 実行タスク: GitHub Issues（docs には書かない）
@@ -20,7 +21,9 @@ alwaysApply: false
 | --- | --- | --- |
 | `roadmap.md` | フェーズ、完了/未着手、優先順位 | 細かい実装チェックリスト |
 | `open-questions.md` | 未決の論点、仮決定 | 実行可能な作業項目 |
-| `design.md` | 機能モジュール、スコープ | Issue 単位のタスク |
+| `design.md` | モジュール一覧、画面/API/データ索引 | 機能の詳細仕様 |
+| `features/*.md` | 1 機能の要件・画面・API・データ | 他機能の詳細 |
+| `api.md` / `screens.md` / `domain-model.md` | 横断事項と索引 | 機能詳細（features へ） |
 | GitHub Issues | 具体作業、完了条件、PR リンク | 設計の詳細（docs へ） |
 
 Issue 完了時: Issue を close → 必要なら `roadmap.md` を更新 → 関連 docs を更新。
@@ -30,7 +33,8 @@ Issue 完了時: Issue を close → 必要なら `roadmap.md` を更新 → 関
 | 種別 | 置き場所 |
 | --- | --- |
 | システム・環境・認証・DB・デプロイ | `docs/architecture/` |
-| 要件・API・画面・ドメインモデル | `docs/application/` |
+| アプリ全体設計・索引 | `docs/application/` |
+| 機能別仕様 | `docs/application/features/` |
 | 本番運用・Secret・バックアップ | `docs/operations/` |
 | 重要な設計判断 | `docs/decisions/`（ADR） |
 
@@ -43,13 +47,12 @@ Issue 完了時: Issue を close → 必要なら `roadmap.md` を更新 → 関
 
 ## 機能追加時の更新セット
 
-| 変更 | 更新する docs |
-| --- | --- |
-| API | `application/api.md`, 必要なら `domain-model.md` |
-| 画面 | `application/screens.md`, `application/design.md` |
-| DB | `architecture/database.md`, `application/domain-model.md` |
-| 認証 | `architecture/authentication.md` |
-| 大きな判断 | 新規 ADR + 関連 docs |
+1. `features/_template.md` から `features/<機能>.md` を作成
+2. `design.md` のモジュール一覧を更新
+3. 索引を更新: `api.md`, `screens.md`, `domain-model.md`（必要なら `requirements.md`）
+4. DB 変更時: `architecture/database.md`
+5. 認証変更時: `architecture/authentication.md`
+6. 大きな判断: 新規 ADR
 
 ## AGENTS.md との関係
 

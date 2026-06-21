@@ -7,7 +7,8 @@
 | ディレクトリ / ファイル | 内容 |
 | --- | --- |
 | `architecture/` | システム全体、環境、認証、DB、デプロイの設計 |
-| `application/` | アプリケーション設計、要件、画面、API、ドメインモデル |
+| `application/` | アプリケーション設計、機能仕様、索引 |
+| `application/features/` | 機能別仕様（本体） |
 | `operations/` | 本番運用、Secret、バックアップ・復旧 |
 | `decisions/` | 重要な設計判断の記録（ADR） |
 | `roadmap.md` | 実装予定と完了状況 |
@@ -28,11 +29,12 @@
 
 | 作業 | 参照ドキュメント |
 | --- | --- |
-| API 追加 | `application/api.md`, `application/domain-model.md` |
-| 画面追加 | `application/screens.md`, `application/design.md` |
-| DB 変更 | `architecture/database.md`, `application/domain-model.md` |
+| 機能追加 | `application/features/_template.md`, `application/design.md` |
+| API 追加 | `application/features/<機能>.md`, `application/api.md` |
+| 画面追加 | `application/features/<機能>.md`, `application/screens.md` |
+| DB 変更 | `architecture/database.md`, `application/features/<機能>.md`, `application/domain-model.md` |
 | 本番デプロイ | `architecture/deployment.md`, `operations/secrets.md` |
-| 認証変更 | `architecture/authentication.md`, `decisions/ADR-0001-*.md` |
+| 認証変更 | `application/features/auth.md`, `architecture/authentication.md` |
 
 ## 現在の実装状態
 
@@ -49,7 +51,7 @@
 ## 運用ルール
 
 - 決定済みの設計は `architecture/` または `operations/` に記載します。
-- アプリの機能仕様は `application/` に記載します。全体設計は `application/design.md` を起点にします。
+- アプリの機能仕様は `application/features/` に記載します。全体設計は `application/design.md` を起点にします。
 - まだ決まっていない内容は `TBD` として明示し、必要に応じて `open-questions.md` に集約します。
 - 重要な判断をした場合は `decisions/` に ADR として残します。
 - コードとドキュメントに差異がある場合は、コードを正としてドキュメントを更新します。

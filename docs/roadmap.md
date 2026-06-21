@@ -36,7 +36,7 @@
 
 | 項目 | 優先度 | 状態 |
 | --- | --- | --- |
-| アプリの主要機能定義 | 高 | 未決（`application/design.md` を参照） |
+| アプリの主要機能定義 | 高 | 未決（`application/design.md`, `application/features/` を参照） |
 | ドメインモデル拡張 | 高 | 未着手 |
 | 業務 API / 画面 | 高 | 未着手 |
 
@@ -51,7 +51,7 @@
 
 ## 推奨実装順序
 
-1. アプリの主要機能を `application/design.md` で確定する。
+1. アプリの主要機能を `application/design.md` と `application/features/` で確定する。
 2. ドメインモデル、API、画面を追加する。
 3. Cloudflare Access JWT 検証を追加する。
 4. 管理者向けユーザー管理を追加する。

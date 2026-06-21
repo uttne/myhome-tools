@@ -49,7 +49,8 @@ alwaysApply: true
 | --- | --- | --- |
 | 進捗・フェーズ | `docs/roadmap.md` | 完了/未着手の俯瞰 |
 | 未決・論点 | `docs/open-questions.md` | 決めるべきこと（タスクにしない） |
-| 機能設計 | `docs/application/design.md` | アプリの方向性・モジュール |
+| 機能設計 | `docs/application/design.md` | モジュール一覧・索引 |
+| 機能仕様 | `docs/application/features/` | 1 機能の詳細 |
 | 設計判断 | `docs/decisions/` | ADR |
 | 実行タスク | GitHub Issues | 具体作業（1 Issue ≒ 1 PR） |
 

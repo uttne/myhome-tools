@@ -35,8 +35,9 @@ docs/                  ← 設計・仕様・運用の詳細
 | 作業 | 最初に読む | 詳細 |
 | --- | --- | --- |
 | 全体把握 | `docs/architecture/overview.md` | `docs/application/design.md` |
-| バックエンド | `.cursor/rules/backend.mdc` | `docs/application/api.md`, `docs/architecture/authentication.md` |
-| フロントエンド | `.cursor/rules/frontend.mdc` | `docs/application/screens.md` |
+| バックエンド | `.cursor/rules/backend.mdc` | `docs/application/features/`, `docs/application/api.md` |
+| 認証変更 | `docs/application/features/auth.md` | `docs/architecture/authentication.md` |
+| フロントエンド | `.cursor/rules/frontend.mdc` | `docs/application/screens.md`, `docs/application/features/` |
 | DB / モデル | `.cursor/rules/backend.mdc` | `docs/architecture/database.md`, `docs/application/domain-model.md` |
 | インフラ | `.cursor/rules/infra.mdc` | `docs/architecture/environments.md`, `docs/architecture/deployment.md` |
 | ドキュメント | `.cursor/rules/docs.mdc` | `docs/README.md` |
@@ -52,6 +53,7 @@ docs/                  ← 設計・仕様・運用の詳細
 ├── docker/            # Dockerfile / NGINX 設定
 ├── charts/            # Helm Chart
 ├── docs/              # 設計・運用ドキュメント
+│   └── application/features/  # 機能別仕様
 ├── .cursor/rules/     # Cursor ルール
 ├── docker-compose.yml
 ├── Taskfile.yml
@@ -119,8 +121,9 @@ task check
 | ファイル | 内容 |
 | --- | --- |
 | `docs/application/design.md` | アプリケーション設計の起点 |
-| `docs/architecture/authentication.md` | 認証・認可 |
-| `docs/application/api.md` | API 仕様 |
+| `docs/application/features/` | 機能別仕様 |
+| `docs/application/api.md` | API 索引 |
 | `docs/roadmap.md` | 実装状況 |
 | `docs/open-questions.md` | 未決事項 |
+| `docs/architecture/authentication.md` | 認証・認可（アーキテクチャ） |
 | `docs/decisions/ADR-0001-*.md` | Cloudflare + ローカル認証の ADR |

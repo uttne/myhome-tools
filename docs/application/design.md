@@ -1,171 +1,109 @@
 # アプリケーション設計
 
+アプリケーション全体の地図です。機能ごとの詳細は `features/` に記載します。
+
 ## 1. 目的
 
-`myhome-tools` は、自宅 k3s クラスター上で動作するホームラボ向け Web アプリケーションです。
+`myhome-tools` は、自宅 k3s 上で動作するホームラボ向け Web アプリケーションです。
 
-家族など少人数の利用者が、インターネット経由（Cloudflare Access 保護）および LAN 内から、安全にアクセスできるツール群を提供することを目的とします。
+家族など少人数が、Cloudflare Access 保護下のインターネット経路および LAN 内から、安全にツール群へアクセスできるようにします。
 
 ## 2. スコープ
 
-### 2.1 現在のスコープ（フェーズ 0: 認証基盤）
-
-以下は実装済みです。
-
-- ユーザー認証（Cloudflare Access + ローカル JWT）
-- ユーザー管理のための `users` テーブル
-- 最小 UI（ログイン、ログアウト、認証状態表示）
-- 開発環境（Docker Compose）
-- 本番デプロイ準備（Docker イメージ、Helm Chart）
-
-### 2.2 次のスコープ（フェーズ 1 以降）
-
-業務機能はこれから定義・実装します。本ドキュメントの「機能モジュール」セクションに、決まり次第追記してください。
-
-### 2.3 スコープ外
-
-- マルチテナント（複数家庭への提供）
-- 公開 SaaS としての運用
-- k3s クラスター自体の管理 UI
-- PostgreSQL インスタンスの運用（既存環境に委譲）
-
-## 3. 利用者
-
-| 利用者 | 説明 | 主な認証経路 |
-| --- | --- | --- |
-| 管理者 | 初期設定、ユーザー管理、全機能利用 | Cloudflare Access / ローカル |
-| 家族ユーザー | 通常機能の利用 | Cloudflare Access / ローカル |
-
-## 4. ロールと権限
-
-| ロール | 権限 |
+| 区分 | 内容 |
 | --- | --- |
-| `admin` | ユーザー管理、設定変更、全データの参照・更新 |
-| `user` | 通常機能の参照・更新（自分に許可された範囲） |
+| フェーズ 0（完了） | 認証基盤、開発環境、Helm Chart |
+| フェーズ 1 以降 | 業務機能（未決） |
+| スコープ外 | マルチテナント、公開 SaaS、k3s / PostgreSQL 運用 UI |
 
-認証方式（Cloudflare / ローカル）とロールは独立です。管理者 API では必ず `admin` ロールを要求します。
+## 3. 利用者とロール
 
-詳細: `../architecture/authentication.md`
-
-## 5. 機能モジュール
-
-### 5.1 認証・セッション（実装済み）
-
-| 機能 | 説明 | API / 画面 |
+| 利用者 | ロール | 説明 |
 | --- | --- | --- |
-| 認証状態確認 | 現在のユーザーを取得 | `GET /api/me` |
-| ローカルログイン | メール + パスワードでログイン | `POST /api/auth/login`, `/` |
-| ログアウト | Cookie 削除、外部ログアウト URL 返却 | `POST /api/auth/logout`, `/logout` |
-| パスワード設定 | ローカルパスワードの初回設定・変更 | `POST /api/auth/password` |
-| Cloudflare JIT | 許可メールの初回アクセス時にユーザー自動作成 | ヘッダー認証 |
+| 管理者 | `admin` | ユーザー管理、設定、全機能 |
+| 家族ユーザー | `user` | 通常機能 |
 
-### 5.2 ユーザー管理（未実装）
+認証方式（Cloudflare / ローカル）とロールは独立。詳細: `../architecture/authentication.md`
 
-| 機能 | 説明 | 優先度 |
-| --- | --- | --- |
-| ユーザー一覧 | 管理者が登録ユーザーを確認 | 中 |
-| ユーザー無効化 | `is_active` の切り替え | 中 |
-| ロール変更 | `admin` / `user` の変更 | 低 |
-| パスワードリセット | リセットトークン発行 | 中 |
+## 4. 機能モジュール
 
-### 5.3 業務機能（未決）
+| モジュール | 仕様 | 状態 | フェーズ |
+| --- | --- | --- | --- |
+| 認証・セッション | [`features/auth.md`](features/auth.md) | 実装済み | 0 |
+| （業務機能） | TBD | 未決 | 1+ |
 
-アプリの主要機能は未決です。以下のテンプレートに沿って追記してください。
+新機能追加時:
 
-```markdown
-#### モジュール名
+1. `features/_template.md` をコピーして `features/<名前>.md` を作成
+2. 下記「索引」ファイルを更新
+3. GitHub Issue を作成
 
-| 機能 ID | 機能名 | 説明 | ロール | 優先度 |
-| --- | --- | --- | --- | --- |
-| F-001 | 例: 一覧表示 | 例: データの一覧を表示 | user | 高 |
-```
+### 業務機能の候補（未決）
 
-候補として検討できる方向（未決）:
-
-- ホームラボの運用情報ダッシュボード
-- 家内デバイスやサービスのリンク集
+- ホームラボ運用ダッシュボード
+- 家内デバイス / サービスのリンク集
 - 家計・在庫・タスクなどの生活管理
 - インフラ監視情報の集約
 
-決定後は `requirements.md`、`domain-model.md`、`api.md`、`screens.md` を更新します。
-
-## 6. 画面構成
-
-### 6.1 現在の画面構成
+## 5. 画面マップ
 
 ```text
-/
-├── 未認証 → ローカルログイン
-└── 認証済み → ユーザー情報表示 + ログアウト
-
-/logout → ログアウト処理
+/              ホーム（認証 UI）          [auth]
+/logout        ログアウト                 [auth]
+/...           業務画面（TBD）
+/admin/...     管理画面（TBD）
 ```
 
-### 6.2 将来の画面構成（案）
+全体索引: [`screens.md`](screens.md)
 
-```text
-/                    ダッシュボード（TBD）
-/login               ローカルログイン（/ から分離する場合）
-/logout              ログアウト
-/settings/password   パスワード設定（TBD）
-/admin/users         ユーザー管理（TBD）
-/...                 業務画面（TBD）
-```
+## 6. API マップ
 
-詳細: `screens.md`
+| カテゴリ | ベースパス | 仕様 | 状態 |
+| --- | --- | --- | --- |
+| ヘルスチェック | `/healthz`, `/readyz` | [`api.md`](api.md) | 実装済み |
+| 認証 | `/api/me`, `/api/auth/*` | [`features/auth.md`](features/auth.md) | 実装済み |
+| 管理者 | `/api/admin/*` | [`features/auth.md`](features/auth.md) | 未実装 |
+| 業務 | `/api/...` | TBD | 未実装 |
 
-## 7. API 構成
+## 7. データモデル
 
-| カテゴリ | ベースパス | 状態 |
-| --- | --- | --- |
-| ヘルスチェック | `/healthz`, `/readyz` | 実装済み |
-| 認証 | `/api/me`, `/api/auth/*` | 実装済み |
-| 管理者 | `/api/admin/*` | 未実装 |
-| 業務 | `/api/...` | 未実装 |
+| エンティティ | テーブル | 仕様 | 状態 |
+| --- | --- | --- | --- |
+| User | `users` | [`features/auth.md`](features/auth.md) | 実装済み |
 
-詳細: `api.md`
+全体索引: [`domain-model.md`](domain-model.md)  
+DB 設計: [`../architecture/database.md`](../architecture/database.md)
 
-## 8. データモデル
-
-現時点のエンティティ:
-
-| エンティティ | テーブル | 状態 |
-| --- | --- | --- |
-| User | `users` | 実装済み |
-
-詳細: `domain-model.md`, `../architecture/database.md`
-
-## 9. 非機能要件
+## 8. 非機能要件
 
 | 項目 | 要件 |
 | --- | --- |
-| セキュリティ | Cloudflare Access を外部公開の第一防御とする。API は Ingress 経由のみ。Secret は Git に含めない |
-| 可用性 | 単一 replica から開始。必要に応じて frontend / backend をスケール |
-| パフォーマンス | 家族利用規模を前提とし、過剰な最適化は行わない |
-| 保守性 | SQLModel + Alembic でスキーマ管理。Helm Chart で k3s デプロイ |
-| バックアップ | 既存 PostgreSQL のバックアップ対象に専用 DB を含める |
-| 開発体験 | Docker Compose を標準とし、ホスト直接起動もサポート |
+| セキュリティ | Cloudflare Access + Ingress 経路限定。Secret は Git に含めない |
+| 可用性 | 単一 replica から開始 |
+| 保守性 | SQLModel + Alembic + Helm Chart |
+| 開発 | Docker Compose 標準 |
 
-## 10. 実装フェーズ
+詳細 ID 付き一覧: [`requirements.md`](requirements.md)
+
+## 9. 実装フェーズ
 
 | フェーズ | 内容 | 状態 |
 | --- | --- | --- |
-| 0 | 認証基盤、開発環境、Helm Chart | 完了 |
-| 1 | 業務機能の要件確定、ドメインモデル設計 | 進行中 |
-| 2 | 業務 API / 画面の実装 | 未着手 |
-| 3 | Cloudflare JWT 検証、ユーザー管理 | 未着手 |
-| 4 | 本番デプロイ（ESO、Tunnel） | 未着手 |
+| 0 | 認証基盤 | 完了 |
+| 1 | 業務機能の要件確定 | 進行中 |
+| 2 | 業務 API / 画面 | 未着手 |
+| 3 | JWT 検証、ユーザー管理 | 未着手 |
+| 4 | 本番デプロイ | 未着手 |
 
-詳細なタスク一覧: `../roadmap.md`
+詳細: [`../roadmap.md`](../roadmap.md)
 
-## 11. 関連ドキュメント
+## 10. 関連ドキュメント
 
 | ドキュメント | 内容 |
 | --- | --- |
-| `requirements.md` | 要件の詳細 |
-| `api.md` | API 仕様 |
-| `screens.md` | 画面設計 |
-| `domain-model.md` | ドメインモデル |
-| `../architecture/overview.md` | システム概要 |
-| `../architecture/authentication.md` | 認証設計 |
-| `../open-questions.md` | 未決事項 |
+| [`features/`](features/) | 機能別仕様 |
+| [`requirements.md`](requirements.md) | 横断要件 |
+| [`api.md`](api.md) | API 索引 |
+| [`screens.md`](screens.md) | 画面索引 |
+| [`domain-model.md`](domain-model.md) | ドメイン索引 |
+| [`../open-questions.md`](../open-questions.md) | 未決事項 |
