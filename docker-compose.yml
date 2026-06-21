@@ -31,6 +31,7 @@ services:
       SECURE_COOKIES: "false"
       ALLOWED_CLOUDFLARE_EMAILS: ""
       EXTERNAL_LOGOUT_URL: ""
+      FILE_STORAGE_ROOT: /workspace/data/files
       UV_PROJECT_ENVIRONMENT: /opt/venv/backend
     ports:
       - "8000:8000"
@@ -42,6 +43,7 @@ services:
       - ./backend/uv.lock:/workspace/backend/uv.lock
       - backend-venv:/opt/venv
       - backend-uv-cache:/root/.cache/uv
+      - ./data/files:/workspace/data/files
     depends_on:
       db:
         condition: service_healthy

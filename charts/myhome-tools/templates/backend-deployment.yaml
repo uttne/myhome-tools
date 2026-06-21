@@ -50,6 +50,17 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if .Values.backend.fileStorage.enabled }}
+          volumeMounts:
+            - name: file-storage
+              mountPath: {{ .Values.backend.fileStorage.mountPath }}
+          {{- end }}
+      {{- if .Values.backend.fileStorage.enabled }}
+      volumes:
+        - name: file-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.backend.fileStorage.existingClaim }}
+      {{- end }}
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

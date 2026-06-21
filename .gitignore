@@ -17,6 +17,10 @@ dist/
 .env.*
 !.env.example
 
+# Local file storage (dev)
+data/files/*
+!data/files/.gitkeep
+
 # IDE / OS
 .DS_Store
 Thumbs.db

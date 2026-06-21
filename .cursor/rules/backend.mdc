@@ -15,7 +15,7 @@ alwaysApply: false
 | `app/security.py` | JWT、bcrypt |
 | `app/models.py` | SQLModel モデル |
 | `app/schemas.py` | Pydantic スキーマ |
-| `app/config.py` | 環境変数 |
+| `app/config.py` | 環境変数（`FILE_STORAGE_ROOT` 含む） |
 | `app/create_admin.py` | 初期管理者 CLI |
 
 ## 認証

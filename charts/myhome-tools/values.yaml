@@ -79,6 +79,16 @@ backend:
     ALLOWED_CLOUDFLARE_EMAILS: ""
     # 外部認証基盤側のログアウト URL です。空の場合はローカルログアウトだけを行います。
     EXTERNAL_LOGOUT_URL: ""
+    # ファイル保存のルートディレクトリです。本番では JuiceFS PVC のマウント先を指定します。
+    FILE_STORAGE_ROOT: /data/files
+  # 本番では家庭 k3s 管理リポジトリで作成済みの JuiceFS PVC をマウントします。
+  fileStorage:
+    # PVC マウントを有効にします。false の場合は volume を追加しません。
+    enabled: false
+    # コンテナ内のマウントパスです。FILE_STORAGE_ROOT と一致させます。
+    mountPath: /data/files
+    # 既存 PersistentVolumeClaim 名です。k3s 管理リポジトリ側で作成した PVC を指定します。
+    existingClaim: ""
   # Secret 由来の環境変数です。Secret の中身はこの Chart では管理しません。
   secretEnv:
     databaseUrl:
