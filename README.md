@@ -140,6 +140,18 @@ task local:frontend:install
 task local:frontend:dev
 ```
 
+### Storybook（UI コンポーネント確認）
+
+shadcn/ui コンポーネントは Storybook で単体確認します。詳細は [`docs/architecture/environments.md`](docs/architecture/environments.md#フロントエンド-uishadcnui--storybook) を参照してください。
+
+```bash
+task local:frontend:storybook   # ホスト直接起動
+# または
+task frontend:storybook         # Docker コンテナ内
+```
+
+ブラウザ URL: `http://localhost:6006`
+
 ローカル直接起動では、`backend/.venv` や `frontend/node_modules` はホスト側に作成されます。Docker Compose 起動時はこれらをコンテナ側 volume に分離しています。
 
 基本方針として、通常の開発時は Docker Compose 上の NGINX / backend / frontend コンテナを利用できます。ホスト側のエディタ補完やデバッガを使いたい場合は、ローカル直接起動を利用してください。

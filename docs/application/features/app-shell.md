@@ -86,8 +86,8 @@
 ## 技術方針
 
 - React Router の nested routes + `Outlet`
-- ドロワーは初期は CSS + state で実装（UI ライブラリは導入しない）
-- スタイルは `styles.css` を拡張
+- UI は **shadcn/ui**（`src/components/ui/`）。新規部品は Storybook で確認する
+- スタイルは Tailwind CSS + `src/styles.css` のテーマ変数
 
 ## 権限
 

@@ -94,7 +94,17 @@ tasks:
   frontend:build:
     desc: Build the frontend in the frontend container
     cmds:
-      - docker compose run --rm --no-deps frontend pnpm build
+      - docker compose run --rm --no-deps frontend sh -c "pnpm install --frozen-lockfile && pnpm build"
+
+  frontend:storybook:
+    desc: Start Storybook in the frontend container
+    cmds:
+      - docker compose run --rm --no-deps -p 6006:6006 frontend sh -c "pnpm install --frozen-lockfile && pnpm storybook -- --host 0.0.0.0"
+
+  frontend:storybook:build:
+    desc: Build Storybook static site in the frontend container
+    cmds:
+      - docker compose run --rm --no-deps frontend sh -c "pnpm install --frozen-lockfile && pnpm build-storybook"
 
   check:
     desc: Run the standard validation checks
@@ -305,3 +315,15 @@ tasks:
     dir: frontend
     cmds:
       - pnpm build
+
+  local:frontend:storybook:
+    desc: Start Storybook on the host
+    dir: frontend
+    cmds:
+      - pnpm storybook
+
+  local:frontend:storybook:build:
+    desc: Build Storybook static site on the host
+    dir: frontend
+    cmds:
+      - pnpm build-storybook

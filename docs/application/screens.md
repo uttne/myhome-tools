@@ -45,8 +45,19 @@ SPA の画面索引です。機能ごとの詳細は `features/` を参照して
 ## 共通方針
 
 - React + Vite + React Router（nested routes）
+- UI は shadcn/ui（`frontend/src/components/ui/`）
 - 認証 API は `fetch` + `credentials: "include"`
 - モバイルファーストのシンプル UI
+
+## Storybook（コンポーネント確認）
+
+画面実装前に UI 部品を単体確認する場合は Storybook を使います。起動方法と Story の置き場所は [`../architecture/environments.md`](../architecture/environments.md#フロントエンド-uishadcnui--storybook) を参照してください。
+
+| 項目 | 内容 |
+| --- | --- |
+| 起動 | `task local:frontend:storybook` または `task frontend:storybook` |
+| URL | `http://localhost:6006` |
+| Story | `src/components/ui/*.stories.tsx` |
 
 ## 関連
 

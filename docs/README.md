@@ -35,6 +35,7 @@
 | 機能追加 | `application/features/_template.md`, `application/design.md` |
 | API 追加 | `application/features/<機能>.md`, `application/api.md` |
 | 画面追加 | `application/features/<機能>.md`, `application/screens.md` |
+| UI コンポーネント確認 | `architecture/environments.md`（Storybook） |
 | DB 変更 | `architecture/database.md`, `application/features/<機能>.md`, `application/domain-model.md` |
 | 本番デプロイ | `architecture/deployment.md`, `operations/secrets.md` |
 | 認証変更 | `application/features/auth.md`, `architecture/authentication.md` |

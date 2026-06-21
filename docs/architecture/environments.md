@@ -92,13 +92,78 @@ Vite の `vite.config.ts` で `/api` へのリクエストを `http://localhost:
 
 ローカル直接起動では `backend/.venv` や `frontend/node_modules` がホスト側に作成されます。
 
+## フロントエンド UI（shadcn/ui + Storybook）
+
+UI コンポーネントは **shadcn/ui**（`frontend/src/components/ui/`）を標準とします。実装したコンポーネントは **Storybook** で単体確認します。
+
+Storybook はアプリ本体（NGINX `8080`）とは別プロセス・別ポートです。
+
+| 項目 | 内容 |
+| --- | --- |
+| URL | `http://localhost:6006` |
+| 設定 | `frontend/.storybook/` |
+| Story 配置 | `frontend/src/components/ui/*.stories.tsx` |
+| テーマ | `frontend/src/styles.css`（Tailwind / shadcn 変数） |
+
+### Storybook の起動
+
+Docker Compose 利用時（frontend コンテナ内で実行）:
+
+```bash
+task frontend:storybook
+```
+
+ホスト OS 上で直接実行:
+
+```bash
+task local:frontend:install   # 初回または package.json 更新後
+task local:frontend:storybook
+```
+
+ブラウザで `http://localhost:6006` を開き、左サイドバーの **UI** カテゴリ（例: `UI/Button`, `UI/Input`, `UI/Card`）から各 Story を確認します。
+
+### コンポーネント追加時の確認手順
+
+1. shadcn/ui コンポーネントを追加する
+
+```bash
+cd frontend
+pnpm dlx shadcn@latest add dialog
+```
+
+Windows で `@/components/ui` 直下に出力された場合は `src/components/ui/` へ移す。
+
+2. 同じディレクトリに Story を追加する（例: `dialog.stories.tsx`）
+
+3. Storybook を起動し、表示・バリアント・Docs タブを確認する
+
+4. 必要なら静的ビルドでエラーがないことを確認する
+
+```bash
+task local:frontend:storybook:build
+# または
+task frontend:storybook:build
+```
+
+出力先: `frontend/storybook-static/`（Git 管理外）
+
+### 関連 task
+
+| task | 用途 |
+| --- | --- |
+| `task frontend:storybook` | Storybook 起動（Docker） |
+| `task local:frontend:storybook` | Storybook 起動（ホスト） |
+| `task frontend:storybook:build` | 静的ビルド（Docker） |
+| `task local:frontend:storybook:build` | 静的ビルド（ホスト） |
+| `task frontend:build` | 本番向けフロントエンドビルド（Story は含まない） |
+
 ## 開発ツール
 
 | 用途 | ツール | 主な task |
 | --- | --- | --- |
 | 開発時の入口 | NGINX | `task up` |
 | バックエンド | `uv` | `task backend:lint`, `task db:migrate` |
-| フロントエンド | `pnpm` | `task frontend:build` |
+| フロントエンド | `pnpm` | `task frontend:build`, `task frontend:storybook` |
 | 検証 | task | `task check` |
 | NGINX 設定 reload | nginx | `task nginx:reload` |
 

@@ -25,3 +25,6 @@ data/files/*
 .DS_Store
 Thumbs.db
 .vscode/
+
+*storybook.log
+storybook-static

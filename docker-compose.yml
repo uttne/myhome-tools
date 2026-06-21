@@ -64,7 +64,10 @@ services:
       - ./frontend/package.json:/workspace/frontend/package.json:ro
       - ./frontend/pnpm-lock.yaml:/workspace/frontend/pnpm-lock.yaml
       - ./frontend/tsconfig.json:/workspace/frontend/tsconfig.json:ro
+      - ./frontend/tsconfig.app.json:/workspace/frontend/tsconfig.app.json:ro
       - ./frontend/tsconfig.node.json:/workspace/frontend/tsconfig.node.json:ro
+      - ./frontend/components.json:/workspace/frontend/components.json:ro
+      - ./frontend/.storybook:/workspace/frontend/.storybook:ro
       - ./frontend/vite.config.ts:/workspace/frontend/vite.config.ts:ro
       - frontend-node-modules:/workspace/frontend/node_modules
       - frontend-dist:/workspace/frontend/dist

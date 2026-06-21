@@ -12,20 +12,40 @@ alwaysApply: false
 | --- | --- |
 | `src/App.tsx` | ルーティング、認証 UI |
 | `src/main.tsx` | エントリポイント |
+| `src/components/ui/` | shadcn/ui コンポーネント |
+| `src/lib/utils.ts` | `cn()` など UI ユーティリティ |
+| `components.json` | shadcn/ui 設定 |
+| `.storybook/` | Storybook 設定 |
 | `vite.config.ts` | Vite 設定、`/api` proxy（ローカル直接起動用） |
+
+## デザインシステム
+
+- **shadcn/ui**（Tailwind CSS v4 + Base UI）を標準とする
+- 新規 UI 部品は `pnpm dlx shadcn@latest add <component>` で追加し、`src/components/ui/` に配置する
+- Windows で `shadcn add` が `@/components/ui` 直下に出力された場合は `src/components/ui/` へ移す
+- 追加後は `src/components/ui/<component>.stories.tsx` を作成し、Storybook で確認する
+- 画面実装では shadcn コンポーネントを優先し、独自 CSS は最小限に留める
+
+## Storybook
+
+- コンポーネント実装時は Story を同時に追加する（`*.stories.tsx`）
+- 起動: `task local:frontend:storybook` または `task frontend:storybook`
+- URL: `http://localhost:6006`
+- Storybook でも `src/styles.css`（Tailwind / テーマ変数）を読み込む
 
 ## 認証 UI
 
-- 初期ロードで `GET /api/me`（`credentials: "include"`）
+- 初期ロードで `GET /api/v1/me`（`credentials: "include"`）
 - 401 → ローカルログイン、200 → ログイン済み表示
-- ログアウトは `/logout` で `POST /api/auth/logout` → `logout_url` または `/` へ
+- ログアウトは `/logout` で `POST /api/v1/auth/logout` → `logout_url` または `/` へ
 
 ## 開発 URL
 
 | 起動方法 | ブラウザ URL |
 | --- | --- |
-| Docker Compose | `http://localhost:8080` |
-| ローカル直接起動 | `http://localhost:5173` |
+| Docker Compose（アプリ） | `http://localhost:8080` |
+| ローカル直接起動（アプリ） | `http://localhost:5173` |
+| Storybook | `http://localhost:6006` |
 
 Compose 利用時は `5173` を直接開かない（NGINX 経由が正）。
 
@@ -33,12 +53,14 @@ Compose 利用時は `5173` を直接開かない（NGINX 経由が正）。
 
 - 関数コンポーネント + React Router（`react-router`）
 - API 呼び出しは `fetch` + `credentials: "include"`
-- スタイルは `src/styles.css`（現状は最小構成）
+- import エイリアス `@/` → `src/`
 - 画面追加時は `docs/application/screens.md` も更新する
 
 ## コマンド
 
 ```bash
 task frontend:build
-task local:frontend:dev   # ホスト直接起動
+task frontend:storybook
+task local:frontend:dev
+task local:frontend:storybook
 ```

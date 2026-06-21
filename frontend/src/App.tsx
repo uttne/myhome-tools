@@ -1,5 +1,17 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState, type ReactNode } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type User = {
   id: string;
@@ -32,6 +44,14 @@ async function fetchMe(): Promise<User | null> {
   return response.json();
 }
 
+function AuthCard({ children }: { children: ReactNode }) {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+      <Card className="w-full max-w-md">{children}</Card>
+    </main>
+  );
+}
+
 function LogoutPage() {
   const didStartLogout = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -62,12 +82,16 @@ function LogoutPage() {
   }, []);
 
   return (
-    <main className="card">
-      <p className="eyebrow">myhome-tools</p>
-      <h1>ログアウト中</h1>
-      <p>ログアウト処理を実行しています。</p>
-      {errorMessage ? <p className="error">{errorMessage}</p> : null}
-    </main>
+    <AuthCard>
+      <CardHeader>
+        <CardDescription>myhome-tools</CardDescription>
+        <CardTitle>ログアウト中</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">ログアウト処理を実行しています。</p>
+        {errorMessage ? <p className="mt-4 text-sm text-destructive">{errorMessage}</p> : null}
+      </CardContent>
+    </AuthCard>
   );
 }
 
@@ -115,59 +139,85 @@ function HomePage() {
   }
 
   if (authState.status === "loading") {
-    return <main className="card">Loading...</main>;
+    return (
+      <AuthCard>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground">
+          Loading...
+        </CardContent>
+      </AuthCard>
+    );
   }
 
   if (authState.status === "authenticated") {
     return (
-      <main className="card">
-        <p className="eyebrow">myhome-tools</p>
-        <h1>ログイン済み</h1>
-        <dl>
-          <dt>Email</dt>
-          <dd>{authState.user.email}</dd>
-          <dt>Role</dt>
-          <dd>{authState.user.role}</dd>
-          <dt>Provider</dt>
-          <dd>{authState.user.auth_provider}</dd>
-        </dl>
-        <button type="button" onClick={handleLogout}>
-          ログアウト
-        </button>
-      </main>
+      <AuthCard>
+        <CardHeader>
+          <CardDescription>myhome-tools</CardDescription>
+          <CardTitle>ログイン済み</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm">
+          <div>
+            <p className="text-muted-foreground">Email</p>
+            <p>{authState.user.email}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Role</p>
+            <p>{authState.user.role}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Provider</p>
+            <p>{authState.user.auth_provider}</p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button type="button" onClick={handleLogout}>
+            ログアウト
+          </Button>
+        </CardFooter>
+      </AuthCard>
     );
   }
 
   return (
-    <main className="card">
-      <p className="eyebrow">myhome-tools</p>
-      <h1>ローカルログイン</h1>
-      <p>Cloudflare Access を通らない場合は、ローカルアカウントでログインします。</p>
-      <form onSubmit={handleLogin}>
-        <label>
-          メールアドレス
-          <input
-            autoComplete="email"
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            type="email"
-            value={email}
-          />
-        </label>
-        <label>
-          パスワード
-          <input
-            autoComplete="current-password"
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            type="password"
-            value={password}
-          />
-        </label>
-        {errorMessage ? <p className="error">{errorMessage}</p> : null}
-        <button type="submit">ログイン</button>
-      </form>
-    </main>
+    <AuthCard>
+      <CardHeader>
+        <CardDescription>myhome-tools</CardDescription>
+        <CardTitle>ローカルログイン</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Cloudflare Access を通らない場合は、ローカルアカウントでログインします。
+        </p>
+        <form className="grid gap-4" onSubmit={handleLogin}>
+          <div className="grid gap-2">
+            <Label htmlFor="email">メールアドレス</Label>
+            <Input
+              autoComplete="email"
+              id="email"
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              type="email"
+              value={email}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">パスワード</Label>
+            <Input
+              autoComplete="current-password"
+              id="password"
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              type="password"
+              value={password}
+            />
+          </div>
+          {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
+          <Button className="w-full" type="submit">
+            ログイン
+          </Button>
+        </form>
+      </CardContent>
+    </AuthCard>
   );
 }
 
