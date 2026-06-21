@@ -92,7 +92,7 @@ backend:
   fileStorage:
     enabled: true
     mountPath: /data/files
-    existingClaim: myhome-juicefs-pvc
+    existingClaim: myhome-tools-juicefs-pvc
 ```
 
 詳細: [`object-storage.md`](object-storage.md)
@@ -101,7 +101,6 @@ backend:
 
 TBD:
 
-- namespace 名の確定
-- Cloudflare Tunnel の設定方法
+- Cloudflare Tunnel の設定方法（k3s 管理リポジトリ）
 - `cloudflared` の冗長化
 - ExternalSecret manifest の配置

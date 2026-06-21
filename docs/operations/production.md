@@ -12,7 +12,7 @@ PostgreSQL は既存の PostgreSQL 環境を利用し、本アプリ専用 DB `m
 | --- | --- |
 | Kubernetes namespace | `myhome-tools` |
 | PostgreSQL DB 名 | `myhome_tools` |
-| JuiceFS PVC（仮） | `myhome-tools-juicefs-pvc`（k3s 管理リポジトリ確定後に合わせる） |
+| JuiceFS PVC（仮） | `myhome-tools-juicefs-pvc`（k3s 管理リポジトリで未確定。確定後に Helm values と docs を合わせる） |
 | Cloudflare Tunnel | k3s 管理リポジトリで運用（本リポジトリでは持たない） |
 | LAN アクセス | HTTP 可 |
 

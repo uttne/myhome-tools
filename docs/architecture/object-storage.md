@@ -85,10 +85,10 @@ backend:
   fileStorage:
     enabled: true
     mountPath: /data/files
-    existingClaim: myhome-juicefs-pvc  # k3s 管理リポジトリで作成した PVC 名
+    existingClaim: myhome-tools-juicefs-pvc  # k3s 管理リポジトリで作成した PVC 名（仮）
 ```
 
-PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務です。PVC 名の仮値は `myhome-tools-juicefs-pvc` です。
+PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務です。PVC 名の仮値は `myhome-tools-juicefs-pvc` です（`charts/myhome-tools/values.yaml` の `backend.fileStorage.existingClaim` と一致）。
 
 ## アップロードフロー
 
@@ -108,7 +108,7 @@ PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務
 
 ## 参照・削除
 
-- **参照**: `GET /api/v1/files/{id}` — 認証済み `user` / `admin` なら誰でも取得可（家族共有データ）
+- **参照**: `GET /api/v1/files/{id}` — 認証済み `user` / `admin` なら取得可（フェーズ1はグループ所属チェックなし。家族内共有前提）
 - **削除**: マスター削除時にファイル + `stored_objects` を削除。孤立ファイルの GC は将来検討
 
 ## バックアップ

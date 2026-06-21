@@ -19,8 +19,10 @@ SPA の画面索引です。機能ごとの詳細は `features/` を参照して
 
 ## 全体画面マップ
 
+フェーズ1の目標構成。フェーズ0（現状）では `/` と `/logout` のみ実装済みです。
+
 ```text
-/                         未認証: ログイン / 認証済み: → /home
+/                         未認証: ログイン / 認証済み: → /home（フェーズ1。現状は / に情報表示）
 /home                     Home Hub                         [home]
 /shopping                 リスト一覧                       [shopping]
 /shopping/lists/:id       リスト詳細
