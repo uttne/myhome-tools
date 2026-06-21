@@ -1,0 +1,49 @@
+---
+description: Docker / Compose / NGINX / Helm の運用規約
+globs: docker/**,charts/**,docker-compose.yml,Taskfile.yml
+alwaysApply: false
+---
+
+# インフラ・開発環境
+
+## Compose サービス
+
+| サービス | 役割 | ホストポート |
+| --- | --- | --- |
+| nginx | 開発入口 | 8080 |
+| backend | FastAPI | 8000 |
+| frontend | Vite | 内部 5173 のみ |
+| db | PostgreSQL 17 | 5432 |
+
+## ルーティング（開発）
+
+NGINX (`docker/nginx.dev.conf`):
+
+- `/api`, `/healthz`, `/readyz` → backend
+- それ以外 → frontend（HMR WebSocket 含む）
+
+## 変更時の注意
+
+- NGINX 設定変更後: `task nginx:reload`（自動 reload しない）
+- Compose bind mount はソースと設定のみ。`node_modules` / venv は volume
+- backend 起動時に `uv sync` + `alembic upgrade head` を実行
+
+## 本番
+
+| 成果物 | 場所 |
+| --- | --- |
+| frontend image | `docker/frontend.prod.Dockerfile` |
+| backend image | `docker/backend.prod.Dockerfile` |
+| Helm Chart | `charts/myhome-tools/` |
+
+```bash
+task image:publish IMAGE_TAG=0.1.0
+task helm:lint
+task helm:template
+```
+
+Secret の中身は Chart に含めない。`backend.secretEnv.*.secretName` で既存 Secret を参照。
+
+## Taskfile
+
+新しいよく使うコマンドは `Taskfile.yml` に追加する。一覧: `task --list`

@@ -1,0 +1,44 @@
+---
+description: React / Vite フロントエンドの実装規約
+globs: frontend/**
+alwaysApply: false
+---
+
+# フロントエンド
+
+## 主要ファイル
+
+| ファイル | 役割 |
+| --- | --- |
+| `src/App.tsx` | ルーティング、認証 UI |
+| `src/main.tsx` | エントリポイント |
+| `vite.config.ts` | Vite 設定、`/api` proxy（ローカル直接起動用） |
+
+## 認証 UI
+
+- 初期ロードで `GET /api/me`（`credentials: "include"`）
+- 401 → ローカルログイン、200 → ログイン済み表示
+- ログアウトは `/logout` で `POST /api/auth/logout` → `logout_url` または `/` へ
+
+## 開発 URL
+
+| 起動方法 | ブラウザ URL |
+| --- | --- |
+| Docker Compose | `http://localhost:8080` |
+| ローカル直接起動 | `http://localhost:5173` |
+
+Compose 利用時は `5173` を直接開かない（NGINX 経由が正）。
+
+## 実装方針
+
+- 関数コンポーネント + React Router（`react-router`）
+- API 呼び出しは `fetch` + `credentials: "include"`
+- スタイルは `src/styles.css`（現状は最小構成）
+- 画面追加時は `docs/application/screens.md` も更新する
+
+## コマンド
+
+```bash
+task frontend:build
+task local:frontend:dev   # ホスト直接起動
+```

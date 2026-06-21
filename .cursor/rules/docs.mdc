@@ -1,0 +1,56 @@
+---
+description: docs/ 配下のドキュメント更新規約
+globs: docs/**
+alwaysApply: false
+---
+
+# ドキュメント
+
+## 索引
+
+- 全体目次: `docs/README.md`
+- アプリ設計の起点: `docs/application/design.md`
+- 未決事項: `docs/open-questions.md`
+- 実装状況: `docs/roadmap.md`
+- 実行タスク: GitHub Issues（docs には書かない）
+
+## 進捗・タスクの分担
+
+| ファイル | 書く内容 | 書かない内容 |
+| --- | --- | --- |
+| `roadmap.md` | フェーズ、完了/未着手、優先順位 | 細かい実装チェックリスト |
+| `open-questions.md` | 未決の論点、仮決定 | 実行可能な作業項目 |
+| `design.md` | 機能モジュール、スコープ | Issue 単位のタスク |
+| GitHub Issues | 具体作業、完了条件、PR リンク | 設計の詳細（docs へ） |
+
+Issue 完了時: Issue を close → 必要なら `roadmap.md` を更新 → 関連 docs を更新。
+
+## 配置ルール
+
+| 種別 | 置き場所 |
+| --- | --- |
+| システム・環境・認証・DB・デプロイ | `docs/architecture/` |
+| 要件・API・画面・ドメインモデル | `docs/application/` |
+| 本番運用・Secret・バックアップ | `docs/operations/` |
+| 重要な設計判断 | `docs/decisions/`（ADR） |
+
+## 更新方針
+
+- コードと矛盾する場合、**コードを正**として docs を更新
+- 未決は `TBD` と明記し、必要なら `open-questions.md` に集約
+- 決定した未決事項は `open-questions.md` から削除または更新
+- ユーザーが依頼していない限り、docs 以外の markdown（`README.md` 等）を勝手に書き換えない
+
+## 機能追加時の更新セット
+
+| 変更 | 更新する docs |
+| --- | --- |
+| API | `application/api.md`, 必要なら `domain-model.md` |
+| 画面 | `application/screens.md`, `application/design.md` |
+| DB | `architecture/database.md`, `application/domain-model.md` |
+| 認証 | `architecture/authentication.md` |
+| 大きな判断 | 新規 ADR + 関連 docs |
+
+## AGENTS.md との関係
+
+`AGENTS.md` は入口索引。詳細は docs に書き、AGENTS.md にはリンクだけ残す。

@@ -1,0 +1,47 @@
+---
+description: FastAPI / SQLModel / Alembic の実装規約
+globs: backend/**
+alwaysApply: false
+---
+
+# バックエンド
+
+## 主要ファイル
+
+| ファイル | 役割 |
+| --- | --- |
+| `app/main.py` | FastAPI app、ルーティング |
+| `app/auth.py` | 認証、Cookie、JIT プロビジョニング |
+| `app/security.py` | JWT、bcrypt |
+| `app/models.py` | SQLModel モデル |
+| `app/schemas.py` | Pydantic スキーマ |
+| `app/config.py` | 環境変数 |
+| `app/create_admin.py` | 初期管理者 CLI |
+
+## 認証
+
+優先順位: Cloudflare ヘッダー → Cookie `myhome_access_token` → 401
+
+- JIT は `ALLOWED_CLOUDFLARE_EMAILS` 一致時のみ。ロールは `user` 固定
+- 管理者は CLI のみ（`python -m app.create_admin`）
+- `Cf-Access-Jwt-Assertion` 検証は未実装
+
+## DB 変更
+
+1. `app/models.py` を更新
+2. `alembic revision --autogenerate` で migration 作成
+3. `task db:migrate` で適用
+
+## 注意
+
+- `bcrypt==4.0.1` 固定（`pyproject.toml`）。変更しない
+- パスワード検証前に `password_hash is None` を考慮（`verify_password` は対応済み）
+- API 追加時は `docs/application/api.md` も更新する
+
+## コマンド
+
+```bash
+task backend:lint
+task db:migrate
+task admin:create
+```
