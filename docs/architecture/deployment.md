@@ -79,6 +79,24 @@ task helm:publish HELM_OCI_REGISTRY=oci://ghcr.io/uttne/charts
 
 詳細: `charts/myhome-tools/README.md`
 
+## ファイルストレージ（本番）
+
+本番のバイナリ保存は家庭 k3s 管理リポジトリで構築した **JuiceFS PVC** を backend にマウントします。JuiceFS の構築・運用は本リポジトリの範囲外です。
+
+Helm Chart の `backend.fileStorage` で既存 PVC を指定します。
+
+```yaml
+backend:
+  env:
+    FILE_STORAGE_ROOT: /data/files
+  fileStorage:
+    enabled: true
+    mountPath: /data/files
+    existingClaim: myhome-juicefs-pvc
+```
+
+詳細: [`object-storage.md`](object-storage.md)
+
 ## 今後追加する設計
 
 TBD:

@@ -6,7 +6,7 @@
 
 | ディレクトリ / ファイル | 内容 |
 | --- | --- |
-| `architecture/` | システム全体、環境、認証、DB、デプロイの設計 |
+| `architecture/` | システム全体、環境、認証、DB、デプロイ、オブジェクトストレージ |
 | `application/` | アプリケーション設計、機能仕様、索引 |
 | `application/features/` | 機能別仕様（本体） |
 | `operations/` | 本番運用、Secret、バックアップ・復旧 |
@@ -19,8 +19,10 @@
 ### 初めて読む場合
 
 1. `architecture/overview.md` — システム全体像
-2. `application/design.md` — アプリケーション設計
-3. `architecture/environments.md` — 開発・本番環境
+2. `application/design.md` — アプリケーション設計（家族 Hub）
+3. `application/features/shopping-list.md` — 買い物リスト仕様
+4. `architecture/object-storage.md` — ファイルストレージ（`FILE_STORAGE_ROOT`）
+5. `architecture/environments.md` — 開発・本番環境
 4. `architecture/authentication.md` — 認証・認可
 5. `roadmap.md` — 実装状況と次のステップ
 6. `open-questions.md` — 未決事項
@@ -38,14 +40,13 @@
 
 ## 現在の実装状態
 
-フェーズ 0（認証基盤）は完了しています。業務機能はフェーズ 1 以降で追加します。
+フェーズ 1（家族 Hub + 買い物リスト）の設計は完了。実装は未着手です。
 
 | 領域 | 状態 |
 | --- | --- |
 | 認証 API / 最小 UI | 完了 |
-| Docker Compose 開発環境 | 完了 |
-| Helm Chart / 本番イメージ | 完了 |
-| 業務機能 | 未着手 |
+| AppShell / Home / 買い物リスト | 設計済み・未実装 |
+| ファイルストレージ連携 | 設計済み・未実装 |
 | 本番デプロイ（Tunnel、ESO） | 未着手 |
 
 ## 運用ルール

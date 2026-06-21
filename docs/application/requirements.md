@@ -4,19 +4,29 @@
 
 全体設計: [`design.md`](design.md)
 
+## プロダクト概要
+
+家族で使う複数のサービス（買い物リストなど）を一つのアプリにまとめた Hub です。
+
+- シンプルな UI（ヘッダー + コンテンツ、ハンバーガーメニュー）
+- Home をデフォルト画面とし、サービス遷移・クイックアクセス・ダッシュボードを提供
+- 画像データは `FILE_STORAGE_ROOT` 配下に保存（本番は JuiceFS PVC）
+
 ## 想定利用者
 
 | 利用者 | 説明 |
 | --- | --- |
 | 管理者 | 初期設定、ユーザー管理、全機能 |
-| 家族ユーザー | 通常機能 |
+| 家族ユーザー | 共有データの参照・更新 |
 
 ## 機能要件（索引）
 
 | 機能 | 要件 ID | 仕様 |
 | --- | --- | --- |
 | 認証・セッション | FR-AUTH-*, FR-ADMIN-* | [`features/auth.md`](features/auth.md) |
-| 業務 | TBD | TBD |
+| アプリシェル | FR-SHELL-* | [`features/app-shell.md`](features/app-shell.md) |
+| Home | FR-HOME-* | [`features/home.md`](features/home.md) |
+| 買い物リスト | FR-SHOP-* | [`features/shopping-list.md`](features/shopping-list.md) |
 
 ## 非機能要件
 
@@ -26,15 +36,17 @@
 | NFR-002 | セキュリティ | JWT 署名鍵、DB 接続情報は Secret 管理 |
 | NFR-003 | 可用性 | 単一 replica から開始。LAN はローカル認証で利用可能 |
 | NFR-004 | 保守性 | Alembic マイグレーション、Helm Chart によるデプロイ |
-| NFR-005 | バックアップ | 既存 PostgreSQL バックアップに専用 DB を含める |
+| NFR-005 | バックアップ | PostgreSQL + ファイルストレージ（本番 JuiceFS は k3s 管理リポジトリ側） |
 | NFR-006 | 開発 | Docker Compose を標準開発環境とする |
+| NFR-007 | ストレージ | バイナリは `FILE_STORAGE_ROOT` 配下。PostgreSQL にファイル本体を保存しない |
+| NFR-008 | UX | モバイルでも操作可能なシンプル UI |
 
-## スコープ外
+## スコープ外（フェーズ 1）
 
-- マルチテナント提供
-- 公開 SaaS 運用
-- PostgreSQL インスタンス自体の運用
-- k3s クラスター管理
+- 補充アラート・購入予測（買い物リスト未来機能）
+- クイックアクセスのユーザー別カスタマイズ
+- 買い物リスト以外のサービス実装
+- 画像リサイズ・サムネイル自動生成
 
 ## 関連ドキュメント
 
@@ -42,6 +54,4 @@
 | --- | --- |
 | [`features/`](features/) | 機能別要件・仕様 |
 | [`design.md`](design.md) | 全体設計 |
-| [`api.md`](api.md) | API 索引 |
-| [`screens.md`](screens.md) | 画面索引 |
-| [`domain-model.md`](domain-model.md) | ドメイン索引 |
+| [`../architecture/object-storage.md`](../architecture/object-storage.md) | ファイルストレージ（`FILE_STORAGE_ROOT`） |

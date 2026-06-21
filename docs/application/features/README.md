@@ -7,6 +7,9 @@
 | ファイル | 機能 | 状態 |
 | --- | --- | --- |
 | [`auth.md`](auth.md) | 認証・セッション・ユーザー管理 | 実装済み（管理 API は未実装） |
+| [`app-shell.md`](app-shell.md) | 共通レイアウト・ナビゲーション | 未着手 |
+| [`home.md`](home.md) | Home Hub・クイックアクセス・ダッシュボード | 未着手 |
+| [`shopping-list.md`](shopping-list.md) | 買い物リスト | 未着手 |
 | [`_template.md`](_template.md) | 新機能追加用テンプレート | — |
 
 ## 新機能の追加手順
@@ -19,4 +22,5 @@
 ## 関連
 
 - 全体設計: [`../design.md`](../design.md)
+- ファイルストレージ: [`../../architecture/object-storage.md`](../../architecture/object-storage.md)
 - 横断要件: [`../requirements.md`](../requirements.md)

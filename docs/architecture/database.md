@@ -57,12 +57,22 @@ Alembic revision: `0001_create_users`
 | `UserRole` | `admin`, `user` | アプリ内認可 |
 | `AuthProvider` | `cloudflare`, `local` | 初回作成時の認証元 |
 
-## 今後追加する設計
+## フェーズ 1 で追加予定のテーブル
+
+詳細: [`../application/features/shopping-list.md`](../application/features/shopping-list.md), [`object-storage.md`](object-storage.md)
+
+| テーブル | 用途 |
+| --- | --- |
+| `shopping_lists` | 買い物リスト |
+| `shopping_list_items` | リスト内アイテム |
+| `shopping_item_masters` | 商品マスター |
+| `shopping_list_history` | 完了リストの履歴 |
+| `stored_objects` | ファイルのメタデータ（`storage_path` は `FILE_STORAGE_ROOT` 相対） |
+
+## 今後検討する設計
 
 TBD:
 
-- 業務機能に必要なテーブル
-- インデックス方針
-- 外部キー制約
+- インデックス方針（`shopping_lists.is_default` partial unique 等）
 - 論理削除の有無
 - 監査ログテーブルの要否
