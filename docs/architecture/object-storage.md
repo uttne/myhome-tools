@@ -88,7 +88,7 @@ backend:
     existingClaim: myhome-juicefs-pvc  # k3s 管理リポジトリで作成した PVC 名
 ```
 
-PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務です。
+PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務です。PVC 名の仮値は `myhome-tools-juicefs-pvc` です。
 
 ## アップロードフロー
 
@@ -113,11 +113,13 @@ PVC の作成・JuiceFS の運用は家庭 k3s 管理リポジトリ側の責務
 
 ## バックアップ
 
-| 対象 | 方法 |
+バックアップ運用は k3s 管理リポジトリの責務です。本リポジトリでは復旧後の確認項目のみ [`../operations/backup-restore.md`](../operations/backup-restore.md) に記載します。
+
+| 対象 | 備考 |
 | --- | --- |
-| `stored_objects` テーブル | PostgreSQL バックアップ（本リポジトリの運用範囲） |
-| 実ファイル（本番） | JuiceFS / オブジェクト層のバックアップ（k3s 管理リポジトリの運用範囲） |
-| 実ファイル（開発） | ローカルディレクトリ。必要に応じて手動バックアップ |
+| `stored_objects` テーブル | PostgreSQL バックアップに含まれる（k3s 側運用） |
+| 実ファイル（本番） | JuiceFS / オブジェクト層（k3s 管理リポジトリ） |
+| 実ファイル（開発） | ローカル `data/files`。開発者が必要に応じて手動 |
 
 ## セキュリティ
 

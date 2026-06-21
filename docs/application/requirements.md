@@ -37,7 +37,7 @@
 | NFR-002 | セキュリティ | JWT 署名鍵、DB 接続情報は Secret 管理 |
 | NFR-003 | 可用性 | 単一 replica から開始。LAN はローカル認証で利用可能 |
 | NFR-004 | 保守性 | Alembic マイグレーション、Helm Chart によるデプロイ |
-| NFR-005 | バックアップ | PostgreSQL + ファイルストレージ（本番 JuiceFS は k3s 管理リポジトリ側） |
+| NFR-005 | バックアップ | k3s 管理リポジトリで運用。本アプリは復旧後の確認項目のみ定義 |
 | NFR-006 | 開発 | Docker Compose を標準開発環境とする |
 | NFR-007 | ストレージ | バイナリは `FILE_STORAGE_ROOT` 配下。PostgreSQL にファイル本体を保存しない |
 | NFR-008 | UX | モバイルでも操作可能なシンプル UI |

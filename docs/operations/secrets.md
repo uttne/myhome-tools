@@ -2,7 +2,7 @@
 
 ## 方針
 
-Secret の原本は GCP Secret Manager に保存します。
+Secret の原本は GCP Secret Manager に保存します（**決定**）。
 
 k3s からは External Secrets Operator (ESO) を利用し、GCP Secret Manager の値を Kubernetes Secret に同期します。アプリケーション Pod は同期された Kubernetes Secret を環境変数、またはファイルとして参照します。
 

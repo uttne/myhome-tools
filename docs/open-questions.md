@@ -6,11 +6,11 @@
 
 | 項目 | 推奨初期判断 | 状態 |
 | --- | --- | --- |
-| LAN 内アクセスの HTTPS 化 | 初期は HTTP も許容し、将来的に家庭内 HTTPS 化を検討 | 未決 |
+| LAN 内アクセスの HTTPS 化 | LAN は HTTP 可（家庭内ネットワーク + ローカル JWT 前提） | **決定** |
 | Cloudflare Access JWT 検証 | フェーズ3で実装 | **決定** |
 | CSRF 対策 | フェーズ1は SameSite=Lax のみ | **決定** |
-| Secret 管理 | GCP Secret Manager を原本とし、ESO で Kubernetes Secret に同期 | 仮決定 |
-| バックアップ運用 | PostgreSQL + ファイルストレージ（本番は JuiceFS 側） | 仮決定 |
+| Secret 管理 | GCP Secret Manager を原本とし、ESO で Kubernetes Secret に同期 | **決定** |
+| バックアップ運用 | k3s 管理リポジトリの責務（PostgreSQL・JuiceFS 等） | **決定** |
 
 ## グループ
 
@@ -56,10 +56,10 @@ JuiceFS の構築詳細は家庭 k3s 管理リポジトリで決定します。
 
 | 項目 | 状態 |
 | --- | --- |
-| 本番 DB 名 | 未決 |
-| 本番 namespace | 未決 |
-| JuiceFS PVC 名（Helm `existingClaim`） | 未決（k3s 管理リポジトリと連携） |
-| Cloudflare Tunnel 設定 | 未決 |
+| 本番 DB 名 | `myhome_tools`（**決定**） |
+| 本番 namespace | `myhome-tools`（**決定**） |
+| JuiceFS PVC 名 | 仮: `myhome-tools-juicefs-pvc`（k3s 管理リポジトリ確定後に合わせる） |
+| Cloudflare Tunnel | k3s 管理リポジトリで運用。本リポジトリでは持たない（**決定**） |
 
 ## 解決済み（参考）
 
@@ -68,6 +68,10 @@ JuiceFS の構築詳細は家庭 k3s 管理リポジトリで決定します。
 | Cloudflare メール制限 | アプリでは行わない。CF Access に任せる |
 | バイナリ保存 | `FILE_STORAGE_ROOT` 配下。本番は JuiceFS PVC |
 | 画面構成 | ヘッダー + コンテンツ、認証済み `/` → `/home` |
+| 本番 namespace / DB 名 | `myhome-tools` / `myhome_tools` |
+| LAN アクセス | HTTP 可 |
+| Cloudflare Tunnel | k3s 管理リポジトリ側 |
+| バックアップ運用 | k3s 管理リポジトリ側 |
 
 ## 確認が必要なとき
 

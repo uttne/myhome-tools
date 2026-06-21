@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 開発（Compose） | `myhome_tools` | `postgresql+psycopg://myhome:myhome@db:5432/myhome_tools` |
 | 開発（ローカル直接起動） | `myhome_tools` | `postgresql+psycopg://myhome:myhome@localhost:5432/myhome_tools` |
-| 本番 | TBD | Kubernetes Secret の `DATABASE_URL` |
+| 本番 | `myhome_tools` | Kubernetes Secret の `DATABASE_URL` |
 
 ## ORM / マイグレーション
 

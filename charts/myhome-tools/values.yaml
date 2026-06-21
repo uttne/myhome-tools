@@ -86,7 +86,7 @@ backend:
     # コンテナ内のマウントパスです。FILE_STORAGE_ROOT と一致させます。
     mountPath: /data/files
     # 既存 PersistentVolumeClaim 名です。k3s 管理リポジトリ側で作成した PVC を指定します。
-    existingClaim: ""
+    existingClaim: myhome-tools-juicefs-pvc
   # Secret 由来の環境変数です。Secret の中身はこの Chart では管理しません。
   secretEnv:
     databaseUrl:

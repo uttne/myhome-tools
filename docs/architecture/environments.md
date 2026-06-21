@@ -30,7 +30,19 @@ Helm Chart の Ingress 定義: `charts/myhome-tools/templates/ingress.yaml`
 - より厳密にするため、`Cf-Access-Jwt-Assertion` の署名検証もバックエンド側で行う方針とします（未実装）。
 - Ingress や Service の設定で、Cloudflare Tunnel を迂回して FastAPI に到達できる外部経路を作らないようにします。
 
-## 開発環境
+本番値（決定済み）:
+
+| 項目 | 値 |
+| --- | --- |
+| Kubernetes namespace | `myhome-tools` |
+| PostgreSQL DB 名 | `myhome_tools` |
+| Cloudflare Tunnel | k3s 管理リポジトリで運用 |
+
+### LAN 内アクセス
+
+家庭 LAN からの直接アクセスは **HTTP 可** とします（ローカル JWT Cookie + 家庭内ネットワーク前提）。HTTPS 化は将来検討します。
+
+詳細: [`../operations/production.md`](../operations/production.md)
 
 開発環境では、Docker Compose で NGINX、フロントエンド、バックエンド、PostgreSQL を起動します。
 

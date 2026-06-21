@@ -4,24 +4,33 @@
 
 本番環境では、アプリケーションは k3s 上で動作します。
 
-PostgreSQL は既存の PostgreSQL 環境を利用し、本アプリ専用に新しいデータベースを作成します。PostgreSQL 自体の運用、永続化、バックアップ、監視は既存 PostgreSQL 側の運用に委ねます。
+PostgreSQL は既存の PostgreSQL 環境を利用し、本アプリ専用 DB `myhome_tools` を作成します。PostgreSQL 自体の運用、永続化、バックアップ、監視は既存 PostgreSQL 側の運用に委ねます。
+
+## 環境値（決定済み）
+
+| 項目 | 値 |
+| --- | --- |
+| Kubernetes namespace | `myhome-tools` |
+| PostgreSQL DB 名 | `myhome_tools` |
+| JuiceFS PVC（仮） | `myhome-tools-juicefs-pvc`（k3s 管理リポジトリ確定後に合わせる） |
+| Cloudflare Tunnel | k3s 管理リポジトリで運用（本リポジトリでは持たない） |
+| LAN アクセス | HTTP 可 |
 
 ## アプリ側で管理する項目
 
 - k3s 上の frontend（NGINX + 静的ファイル）/ backend（FastAPI）
 - Helm Chart による Deployment / Service / Ingress
-- cloudflared（Cloudflare Tunnel、未設定）
 - アプリ専用 DB への接続設定（Kubernetes Secret 参照）
 - Alembic マイグレーション
 - アプリケーションログ
 - readiness / liveness probe（`/readyz`, `/healthz`）
+- JuiceFS PVC のマウント（`backend.fileStorage`）
 
 ## アプリ側で管理しない項目
 
-- PostgreSQL Pod
-- PostgreSQL 用 PVC
-- PostgreSQL インスタンス自体の監視
-- PostgreSQL インスタンス自体のバックアップ
+- PostgreSQL Pod / PVC / バックアップ・復旧
+- cloudflared（Cloudflare Tunnel）
+- JuiceFS の構築・運用・バックアップ（k3s 管理リポジトリ）
 
 ## デプロイ
 
@@ -35,7 +44,9 @@ helm upgrade --install myhome-tools charts/myhome-tools \
   --set backend.image.tag=0.1.0 \
   --set ingress.host=app.example.com \
   --set backend.secretEnv.databaseUrl.secretName=myhome-tools-db \
-  --set backend.secretEnv.jwtSecretKey.secretName=myhome-tools-auth
+  --set backend.secretEnv.jwtSecretKey.secretName=myhome-tools-auth \
+  --set backend.fileStorage.enabled=true \
+  --set backend.fileStorage.existingClaim=myhome-tools-juicefs-pvc
 ```
 
 イメージの build / push:
@@ -73,7 +84,8 @@ task db:migrate
 
 TBD:
 
-- 本番 namespace の確定
 - ロールバック手順
 - 障害対応手順
 - メンテナンス手順
+
+バックアップ・復旧手順は k3s 管理リポジトリで定義します。復旧後の確認は [`backup-restore.md`](backup-restore.md) を参照してください。
